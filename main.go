@@ -3,11 +3,11 @@ package main
 import (
 	"fmt"
 
-	"github.com/mschristensen/brocoin/blockchain"
+	"github.com/mschristensen/brocoin/core"
 )
 
 func main() {
-	bc := blockchain.Init()
+	bc := core.NewBlockchain()
 	(&bc).AddBlock(1, "abc")
 	fmt.Println(bc)
 }

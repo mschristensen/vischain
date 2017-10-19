@@ -1,14 +1,8 @@
-package blockchain
+package core
 
 import (
 	"time"
 )
-
-type Transaction struct {
-	sender    string
-	recipient string
-	amount    uint16
-}
 
 type Block struct {
 	index        int64
@@ -32,7 +26,7 @@ func (bc *Blockchain) AddBlock(proof uint32, prevHash string) Block {
 	return block
 }
 
-func Init() Blockchain {
+func NewBlockchain() Blockchain {
 	var bc Blockchain
 	genesis := Block{
 		index:        0,
