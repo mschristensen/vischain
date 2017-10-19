@@ -6,12 +6,8 @@ import (
 	"github.com/mschristensen/brocoin/blockchain"
 )
 
-func printBlock(b blockchain.Block) {
-	fmt.Println(b.PrevHash)
-}
-
 func main() {
-	fmt.Println("Hello, world!")
 	bc := blockchain.Init()
-	printBlock(bc[0])
+	(&bc).AddBlock(1, "abc")
+	fmt.Println(bc)
 }

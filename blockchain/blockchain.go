@@ -20,17 +20,17 @@ type Block struct {
 
 type Blockchain []Block
 
-// func (bc Blockchain) AddBlock(proof uint32, prevHash string) Block {
-// 	block := Block{
-// 		index:        1,
-// 		timestamp:    time.Now().UnixNano(),
-// 		transactions: nil,
-// 		proof:        proof,
-// 		PrevHash:     prevHash,
-// 	}
-// 	bc = append(bc, block)
-// 	return block
-// }
+func (bc *Blockchain) AddBlock(proof uint32, prevHash string) Block {
+	block := Block{
+		index:        1,
+		timestamp:    time.Now().UnixNano(),
+		transactions: nil,
+		proof:        proof,
+		PrevHash:     prevHash,
+	}
+	*bc = append(*bc, block)
+	return block
+}
 
 func Init() Blockchain {
 	var bc Blockchain
