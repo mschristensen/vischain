@@ -14,11 +14,11 @@ type Block struct {
 
 type Blockchain []Block
 
-func (bc *Blockchain) AddBlock(proof uint32, prevHash string) Block {
+func (bc *Blockchain) AddBlock(proof uint32, prevHash string, transactions []Transaction) Block {
 	block := Block{
 		index:        1,
 		timestamp:    time.Now().UnixNano(),
-		transactions: nil,
+		transactions: transactions,
 		proof:        proof,
 		PrevHash:     prevHash,
 	}
