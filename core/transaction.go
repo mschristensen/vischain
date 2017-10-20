@@ -6,6 +6,8 @@ type Transaction struct {
 	Amount    uint16
 }
 
-func (block *Block) AddTransaction(transaction Transaction) {
-	block.transactions = append(block.transactions, transaction)
+type TransactionList []Transaction
+
+func (tl *TransactionList) AddTransaction(transaction Transaction) {
+	*tl = append(*tl, transaction)
 }

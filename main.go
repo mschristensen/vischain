@@ -8,12 +8,21 @@ import (
 
 func main() {
 	bc := core.NewBlockchain()
-	(&bc).AddBlock(1, "abc", nil)
-	t := core.Transaction{
+
+	var tl core.TransactionList
+	t1 := core.Transaction{
 		Sender:    "mike",
 		Recipient: "james",
 		Amount:    1,
 	}
-	bc[1].AddTransaction(t)
+	t2 := core.Transaction{
+		Sender:    "bob",
+		Recipient: "harry",
+		Amount:    5,
+	}
+	tl.AddTransaction(t1)
+	tl.AddTransaction(t2)
+
+	(&bc).AddBlock(1, "abc", tl)
 	fmt.Println(bc)
 }

@@ -4,14 +4,6 @@ import (
 	"time"
 )
 
-type Block struct {
-	index        int64
-	timestamp    int64
-	transactions []Transaction
-	proof        uint32
-	PrevHash     string
-}
-
 type Blockchain []Block
 
 func (bc *Blockchain) AddBlock(proof uint32, prevHash string, transactions []Transaction) Block {
