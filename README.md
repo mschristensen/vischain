@@ -16,9 +16,9 @@ c) give back to the bros
 
 - Collect and add transactions
 - Once limit reached, keep collecting transactions anyway to mine later
-- Mine + broadcast latest block
+- PoW HashCash: https://en.bitcoin.it/wiki/Hashcash
+    - Mine + broadcast latest block
 - When new block broadcast and verified, remove any transactions in pool which have already been mined
-- PoW
 - Enforce fairness
    - when spending coins from one address, must sign transation w/ private key of that address
    - confirm transaction validity when adding to list
