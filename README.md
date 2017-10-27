@@ -19,11 +19,11 @@ c) give back to the bros
 - Mine + broadcast latest block
 - When new block broadcast and verified, remove any transactions in pool which have already been mined
 - PoW
-- Longest chain wins
 - Enforce fairness
    - when spending coins from one address, must sign transation w/ private key of that address
    - confirm transaction validity when adding to list
    - ensure all transactions in block are valid when new block received from network (https://en.bitcoin.it/wiki/Protocol_rules#.22tx.22_messages)
+   - Longest chain wins: new block received points to end of curr chain? Else, if longer than ours, replace it.
 - Peer discovery
 - Separate block header
    - Fixed size block header (only the header is hashed + mined, to ensure consistent difficulty regardless of # transactions in a block)
