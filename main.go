@@ -9,20 +9,20 @@ import (
 func main() {
 	bc := core.NewBlockchain()
 
+	// Add transactions until limit reached
 	var tl core.TransactionList
-	t1 := core.Transaction{
-		Sender:    "mike",
-		Recipient: "james",
+	t := randomTransaction()
+	for tl.AddTransaction(t) == 1 {
+		t = randomTransaction()
+	}
+
+	fmt.Println(bc)
+}
+
+func randomTransaction() core.Transaction {
+	return core.Transaction{
+		Sender:    "from",
+		Recipient: "to",
 		Amount:    1,
 	}
-	t2 := core.Transaction{
-		Sender:    "bob",
-		Recipient: "harry",
-		Amount:    5,
-	}
-	tl.AddTransaction(t1)
-	tl.AddTransaction(t2)
-
-	(&bc).AddBlock(1, "abc", tl)
-	fmt.Println(bc)
 }

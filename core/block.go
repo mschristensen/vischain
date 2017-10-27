@@ -8,13 +8,9 @@ import (
 type Block struct {
 	index        int64
 	timestamp    int64
-	transactions []Transaction
+	transactions TransactionList
 	proof        Proof
-	PrevHash     string
-}
-
-func (block *Block) AddTransaction(transaction Transaction) {
-	block.transactions = append(block.transactions, transaction)
+	prevHash     string
 }
 
 func (block *Block) Hash() string {

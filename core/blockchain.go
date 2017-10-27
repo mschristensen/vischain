@@ -13,20 +13,12 @@ func NewBlockchain() Blockchain {
 		timestamp:    time.Now().UnixNano(),
 		transactions: nil,
 		proof:        0,
-		PrevHash:     "Genesis",
+		prevHash:     "",
 	}
 	bc = append(bc, genesis)
 	return bc
 }
 
-func (bc *Blockchain) AddBlock(proof Proof, prevHash string, transactions []Transaction) Block {
-	block := Block{
-		index:        1,
-		timestamp:    time.Now().UnixNano(),
-		transactions: transactions,
-		proof:        proof,
-		PrevHash:     prevHash,
-	}
-	*bc = append(*bc, block)
-	return block
+func (bc *Blockchain) LastBlock() Block {
+	return (*bc)[len(*bc)-1]
 }
