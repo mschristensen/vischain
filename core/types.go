@@ -1,3 +1,3 @@
 package core
 
-type Proof uint32
+type Hash []byte

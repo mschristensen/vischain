@@ -16,7 +16,7 @@ c) give back to the bros
 
 - Collect and add transactions
 - Once limit reached, keep collecting transactions anyway to mine later
-- PoW HashCash: https://en.bitcoin.it/wiki/Hashcash
+- PoW HashCash: https://en.bitcoin.it/wiki/Hashcash, https://en.bitcoin.it/wiki/Block_hashing_algorithm
     - Mine + broadcast latest block
 - When new block broadcast and verified, remove any transactions in pool which have already been mined
 - Enforce fairness
@@ -33,3 +33,4 @@ c) give back to the bros
    - Verify transaction included in block using only necessary Merkel branches in transaction tree
    - Set block size limit
 - Transaction fees
+- Implement UXTO + balance system https://www.cryptocompare.com/mining/guides/bitcoin-transaction-inputs-and-outputs/
