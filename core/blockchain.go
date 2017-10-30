@@ -1,6 +1,7 @@
 package core
 
 import (
+	"encoding/binary"
 	"fmt"
 	"time"
 )
@@ -24,30 +25,46 @@ func (bc *Blockchain) LastBlock() Block {
 	return (*bc)[len(*bc)-1]
 }
 
-func (bc *Blockchain) Mine(c chan TransactionList) {
-	lastBlock := bc.LastBlock()
-	var tl TransactionList
-	block := &Block{
-		index:     lastBlock.index + 1,
-		timestamp: time.Now().UnixNano(),
-		prevHash:  lastBlock.Hash(),
+func (bc *Blockchain) NewBlock() Block {
+	return Block{
+		index:        bc.LastBlock().index + 1,
+		timestamp:    time.Now().UnixNano(),
+		prevHash:     bc.LastBlock().Hash(),
+		transactions: nil,
 	}
+}
 
-	var counter uint32
-	counter = 0
-	success, hash := ProofOfWork(lastBlock.Hash(), counter)
+func (bc *Blockchain) AddBlock(block Block) {
+	*bc = append(*bc, block)
+}
+
+func (bc *Blockchain) Mine(c chan Transaction) {
+	var t Transaction
+	block := bc.NewBlock()
+
+	var counterInt32 uint32
+	counter := []byte{0, 0, 0, 0}
+	success := ProofOfWork(bc.LastBlock().Hash(), counter)
 	for {
 		select {
-		case tl = <-c:
-			block.transactions = tl
+		case t = <-c:
+			block.transactions.AddTransaction(t)
 		default:
-			fmt.Println(success, hash)
-			counter++
-			success, hash = ProofOfWork(lastBlock.Hash(), counter)
-			block.proof = hash
+			if block.transactions == nil {
+				continue
+			}
+			// increment counter
+			counterInt32 = binary.LittleEndian.Uint32(counter)
+			counterInt32++
+			binary.LittleEndian.PutUint32(counter, counterInt32)
+
+			success = ProofOfWork(bc.LastBlock().Hash(), counter)
 			if success == true {
-				fmt.Println("SUCCESS", hash)
-				return
+				block.proof = counter
+				bc.AddBlock(block)
+				fmt.Println(bc.LastBlock().transactions)
+				// TODO broadcast block to peers
+				block = bc.NewBlock()
 			}
 		}
 	}

@@ -13,8 +13,8 @@ type Block struct {
 	prevHash     Hash
 }
 
-func (block *Block) Hash() []byte {
+func (block Block) Hash() []byte {
 	var buf bytes.Buffer
-	binary.Write(&buf, binary.BigEndian, *block)
+	binary.Write(&buf, binary.BigEndian, block)
 	return Sha256(buf.Bytes())
 }

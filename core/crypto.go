@@ -2,7 +2,6 @@ package core
 
 import (
 	"crypto/sha256"
-	"encoding/binary"
 )
 
 // Sha256 computes the she256 hash of a given byte array
@@ -15,18 +14,13 @@ func Sha256(bytes []byte) []byte {
 // ProofOfWork implements a HashCash-based PoW algorithm.
 // Work is completed successfully if the hash of the block and a
 // given counter ends with a sufficient number of trailing zeroes.
-// Returns a success, hash pair.
-func ProofOfWork(blockHash []byte, counter uint32) (bool, []byte) {
-	// convert counter integer into array of bytes
-	counterBytes := make([]byte, 4)
-	binary.LittleEndian.PutUint32(counterBytes, counter)
-
+func ProofOfWork(blockHash []byte, counter []byte) bool {
 	// concatenate blockHash and counter bytes
 	var bs []byte
 	for _, b := range blockHash {
 		bs = append(bs, b)
 	}
-	for _, b := range counterBytes {
+	for _, b := range counter {
 		bs = append(bs, b)
 	}
 
@@ -37,11 +31,11 @@ func ProofOfWork(blockHash []byte, counter uint32) (bool, []byte) {
 	tail := hash[len(hash)-difficulty:]
 	for i := 0; i < difficulty; i++ {
 		if tail[i] != 0 {
-			return false, hash
+			return false
 		}
 	}
 
-	return true, hash
+	return true
 }
 
 // func VerifyProof(lastProof Proof, proof Proof) bool {

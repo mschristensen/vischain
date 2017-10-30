@@ -9,18 +9,12 @@ import (
 func main() {
 	bc := core.NewBlockchain()
 
-	c := make(chan core.TransactionList)
+	c := make(chan core.Transaction)
 	go bc.Mine(c)
 
 	// Add transactions until limit reached
-	var tl core.TransactionList
-	t := randomTransaction()
-	for tl.AddTransaction(t) != -1 {
-		t = randomTransaction()
-		c <- tl
-	}
-
-	for {
+	for i := 0; i < 20; i++ {
+		c <- randomTransaction()
 	}
 
 	fmt.Println("BLOCKCHAIN", bc)
