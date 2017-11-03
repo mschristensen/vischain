@@ -13,11 +13,12 @@ func main() {
 	go bc.Mine(c)
 
 	// Add transactions until limit reached
-	for i := 0; i < 20; i++ {
+	for i := 0; i < 1000; i++ {
 		c <- randomTransaction()
 	}
 
-	fmt.Println("BLOCKCHAIN", bc)
+	fmt.Println(bc)
+	fmt.Println(bc.ValidateBlockchain())
 }
 
 func randomTransaction() core.Transaction {

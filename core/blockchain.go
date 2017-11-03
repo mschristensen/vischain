@@ -2,7 +2,6 @@ package core
 
 import (
 	"encoding/binary"
-	"fmt"
 	"time"
 )
 
@@ -26,25 +25,50 @@ func (bc *Blockchain) LastBlock() Block {
 }
 
 func (bc *Blockchain) NewBlock() Block {
+	lastBlock := bc.LastBlock()
 	return Block{
-		index:        bc.LastBlock().index + 1,
+		index:        lastBlock.index + 1,
 		timestamp:    time.Now().UnixNano(),
-		prevHash:     bc.LastBlock().Hash(),
 		transactions: nil,
+		proof:        nil,
+		prevHash:     lastBlock.Hash(),
 	}
 }
 
+// AddBlock adds a block to the blockchain
 func (bc *Blockchain) AddBlock(block Block) {
 	*bc = append(*bc, block)
 }
 
+// ValidateBlock indicates whether a new block is valid, which it is iff.
+// its proof hashed with the last block hash satisfies the difficulty constraint
+func (bc *Blockchain) ValidateBlock(lastBlock Block, block Block) bool {
+	return CompareHashes(block.prevHash, lastBlock.Hash()) && ProofOfWork(block.prevHash, block.proof)
+}
+
+// ValidateBlockchain indicates whether an entire blockchain is valid
+func (bc *Blockchain) ValidateBlockchain() bool {
+	for i := 0; i < len(*bc); i++ {
+		if i == 0 {
+			continue
+		}
+		if !bc.ValidateBlock((*bc)[i-1], (*bc)[i]) {
+			return false
+		}
+	}
+	return true
+}
+
+// Mine continuously accepts new transactions and attempts to mine a block containing
+// them by finding a proof value which satisfies the difficulty constraint
 func (bc *Blockchain) Mine(c chan Transaction) {
 	var t Transaction
 	block := bc.NewBlock()
 
 	var counterInt32 uint32
 	counter := []byte{0, 0, 0, 0}
-	success := ProofOfWork(bc.LastBlock().Hash(), counter)
+	lastBlock := bc.LastBlock()
+	success := ProofOfWork(lastBlock.Hash(), counter)
 	for {
 		select {
 		case t = <-c:
@@ -58,13 +82,13 @@ func (bc *Blockchain) Mine(c chan Transaction) {
 			counterInt32++
 			binary.LittleEndian.PutUint32(counter, counterInt32)
 
-			success = ProofOfWork(bc.LastBlock().Hash(), counter)
+			success = ProofOfWork(lastBlock.Hash(), counter)
 			if success == true {
-				block.proof = counter
+				block.proof = append([]byte(nil), counter...)
 				bc.AddBlock(block)
-				fmt.Println(bc.LastBlock().transactions)
-				// TODO broadcast block to peers
+				lastBlock = block
 				block = bc.NewBlock()
+				// TODO broadcast block to peers
 			}
 		}
 	}

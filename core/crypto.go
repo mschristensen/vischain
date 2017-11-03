@@ -15,17 +15,7 @@ func Sha256(bytes []byte) []byte {
 // Work is completed successfully if the hash of the block and a
 // given counter ends with a sufficient number of trailing zeroes.
 func ProofOfWork(blockHash []byte, counter []byte) bool {
-	// concatenate blockHash and counter bytes
-	var bs []byte
-	for _, b := range blockHash {
-		bs = append(bs, b)
-	}
-	for _, b := range counter {
-		bs = append(bs, b)
-	}
-
-	// successful Proof of Work if hashed concatenated bytes ends in
-	// number of zeroes given by _difficulty_
+	bs := ConcatBytes(blockHash, counter)
 	difficulty := 1
 	hash := Sha256(bs)
 	tail := hash[len(hash)-difficulty:]
@@ -38,8 +28,22 @@ func ProofOfWork(blockHash []byte, counter []byte) bool {
 	return true
 }
 
-// func VerifyProof(lastProof Proof, proof Proof) bool {
-// 	guess := fmt.Sprintf("%d%d", lastProof, proof)
-// 	guessHash := Sha256([]byte(guess))
-// 	return guessHash[:4] == "0000"
-// }
+func ConcatBytes(a []byte, b []byte) []byte {
+	var result []byte
+	for _, i := range a {
+		result = append(result, i)
+	}
+	for _, i := range b {
+		result = append(result, i)
+	}
+	return result
+}
+
+func CompareHashes(a Hash, b Hash) bool {
+	for i := 0; i < len(a); i++ {
+		if a[i] != b[i] {
+			return false
+		}
+	}
+	return true
+}

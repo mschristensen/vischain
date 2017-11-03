@@ -1,9 +1,6 @@
 package core
 
-import (
-	"bytes"
-	"encoding/binary"
-)
+import "fmt"
 
 type Block struct {
 	index        int64
@@ -13,8 +10,6 @@ type Block struct {
 	prevHash     Hash
 }
 
-func (block Block) Hash() []byte {
-	var buf bytes.Buffer
-	binary.Write(&buf, binary.BigEndian, block)
-	return Sha256(buf.Bytes())
+func (block *Block) Hash() Hash {
+	return Sha256([]byte(fmt.Sprintf("%v", *block)))
 }
