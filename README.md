@@ -14,11 +14,11 @@ c) give back to the bros
 
 ## Todo
 
-- Collect and add transactions
-- Once limit reached, keep collecting transactions anyway to mine later
-- PoW HashCash: https://en.bitcoin.it/wiki/Hashcash, https://en.bitcoin.it/wiki/Block_hashing_algorithm
-    - Mine + broadcast latest block
-- When new block broadcast and verified, remove any transactions in pool which have already been mined
+- Broadcast latest block once mined
+- Listen for incoming blocks and verify them
+- If an incoming block is verified and added to the chain, remove any transactions in pool which have already been mined and start again
+- Implement a block size limit
+- Once block size limit reached, keep collecting transactions anyway to mine later
 - Enforce fairness
    - when spending coins from one address, must sign transation w/ private key of that address
    - confirm transaction validity when adding to list
