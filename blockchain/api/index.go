@@ -26,7 +26,7 @@ func Listen() {
 	http.ListenAndServe(":8080", router)
 }
 
-func Request(route string, target interface{}) error {
+func Get(route string, target interface{}) error {
 	resp, err := http.Get(APIUrl + route)
 	if err != nil {
 		return err
@@ -35,3 +35,13 @@ func Request(route string, target interface{}) error {
 
 	return json.NewDecoder(resp.Body).Decode(target)
 }
+
+// func Post(route string, body interface{}, target interface{}) error {
+// 	bs, err := json.Marshal(body)
+// 	if err != nil {
+// 		return err
+// 	}
+// 	buf := bytes.NewBuffer(bs)
+// 	resp, err := http.Post(APIUrl+route, "application/json; charset=utf-8", buf)
+// 	return decodeResponse(resp, err, target)
+// }
