@@ -3,7 +3,8 @@ package main
 import (
 	"fmt"
 
-	"github.com/mschristensen/brocoin/core"
+	"github.com/mschristensen/brocoin/blockchain/api"
+	"github.com/mschristensen/brocoin/blockchain/core"
 )
 
 func main() {
@@ -19,6 +20,8 @@ func main() {
 
 	fmt.Println(bc)
 	fmt.Println(bc.ValidateBlockchain())
+
+	api.Listen()
 }
 
 func randomTransaction() core.Transaction {
