@@ -7,6 +7,11 @@ import (
 	"github.com/mschristensen/brocoin/blockchain/core"
 )
 
+type Response struct {
+	Payload string
+	Title   string
+}
+
 func main() {
 	bc := core.NewBlockchain()
 
@@ -20,6 +25,10 @@ func main() {
 
 	fmt.Println(bc)
 	fmt.Println(bc.ValidateBlockchain())
+
+	var resp Response
+	api.Request("/hello", &resp)
+	fmt.Println(resp)
 
 	api.Listen()
 }
