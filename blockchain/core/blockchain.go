@@ -86,9 +86,9 @@ func (bc *Blockchain) Mine(c chan Transaction) {
 			if success == true {
 				block.proof = append([]byte(nil), counter...)
 				bc.AddBlock(block)
+				// TODO broadcast block to peers
 				lastBlock = block
 				block = bc.NewBlock()
-				// TODO broadcast block to peers
 			}
 		}
 	}

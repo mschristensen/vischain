@@ -18,20 +18,17 @@ func main() {
 		c <- randomTransaction()
 	}
 
-	fmt.Println(bc)
-	fmt.Println(bc.ValidateBlockchain())
+	// fmt.Println(bc)
+	// fmt.Println(bc.ValidateBlockchain())
 
-	r := api.HelloResponseGet{}
-	api.Get("/hello", &r)
-	fmt.Println(r)
-
-	r2 := api.HelloResponseGet{
-		Payload: "Test Payload",
-		Title:   "Test Title",
-	}
-	r3 := api.HelloResponsePost{}
-	api.Post("/hello", r2, &r3)
-	fmt.Println(r3)
+	lb := bc.LastBlock()
+	res, _ := api.Post("/hello", lb.ToJSON())
+	m, _ := api.ParseBody(res.Body)
+	block := &core.Block{}
+	block.FromMap(m)
+	fmt.Println("MAP", m)
+	fmt.Println("BLOCK SENT    ", lb)
+	fmt.Println("BLOCK RECEIVED", *block)
 
 	api.Listen()
 }

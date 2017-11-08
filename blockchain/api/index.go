@@ -3,6 +3,8 @@ package api
 import (
 	"bytes"
 	"encoding/json"
+	"io"
+	"io/ioutil"
 	"net/http"
 
 	"github.com/gorilla/mux"
@@ -37,14 +39,24 @@ func Get(route string, target interface{}) error {
 	return json.NewDecoder(resp.Body).Decode(target)
 }
 
-func Post(route string, body interface{}, target interface{}) error {
-	b := new(bytes.Buffer)
-	json.NewEncoder(b).Encode(body)
-	resp, err := http.Post(APIUrl+route, "application/json; charset=utf-8", b)
-	if err != nil {
-		return err
-	}
-	defer resp.Body.Close()
+// Post the JSON-encoded string `body` to the endpoint `route`
+func Post(route string, body string) (*http.Response, error) {
+	buf := bytes.NewBuffer([]byte(body))
+	return http.Post(APIUrl+route, "application/json; charset=utf-8", buf)
+}
 
-	return json.NewDecoder(resp.Body).Decode(target)
+// ParseBody parses application/json data of unknown shape
+// from a response body into an empty interface map
+func ParseBody(body io.Reader) (map[string]interface{}, error) {
+	data, err := ioutil.ReadAll(body)
+	if err != nil {
+		return nil, err
+	}
+
+	var parsedMap Response
+	err = json.Unmarshal(data, &parsedMap)
+	if err != nil {
+		return nil, err
+	}
+	return parsedMap.Payload, nil
 }
