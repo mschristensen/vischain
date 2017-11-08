@@ -1,6 +1,7 @@
 package api
 
 import (
+	"bytes"
 	"encoding/json"
 	"net/http"
 
@@ -36,12 +37,14 @@ func Get(route string, target interface{}) error {
 	return json.NewDecoder(resp.Body).Decode(target)
 }
 
-// func Post(route string, body interface{}, target interface{}) error {
-// 	bs, err := json.Marshal(body)
-// 	if err != nil {
-// 		return err
-// 	}
-// 	buf := bytes.NewBuffer(bs)
-// 	resp, err := http.Post(APIUrl+route, "application/json; charset=utf-8", buf)
-// 	return decodeResponse(resp, err, target)
-// }
+func Post(route string, body interface{}, target interface{}) error {
+	b := new(bytes.Buffer)
+	json.NewEncoder(b).Encode(body)
+	resp, err := http.Post(APIUrl+route, "application/json; charset=utf-8", b)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+
+	return json.NewDecoder(resp.Body).Decode(target)
+}

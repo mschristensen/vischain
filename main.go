@@ -21,9 +21,17 @@ func main() {
 	fmt.Println(bc)
 	fmt.Println(bc.ValidateBlockchain())
 
-	r := api.HelloResponse{}
+	r := api.HelloResponseGet{}
 	api.Get("/hello", &r)
 	fmt.Println(r)
+
+	r2 := api.HelloResponseGet{
+		Payload: "Test Payload",
+		Title:   "Test Title",
+	}
+	r3 := api.HelloResponsePost{}
+	api.Post("/hello", r2, &r3)
+	fmt.Println(r3)
 
 	api.Listen()
 }
