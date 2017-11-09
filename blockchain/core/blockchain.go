@@ -2,6 +2,7 @@ package core
 
 import (
 	"encoding/binary"
+	"fmt"
 	"time"
 )
 
@@ -51,7 +52,7 @@ func (bc *Blockchain) ValidateBlock(lastBlock Block, block Block) bool {
 // given counter ends with a sufficient number of trailing zeroes.
 func ProofOfWork(blockHash []byte, counter []byte) bool {
 	bs := ConcatBytes(blockHash, counter)
-	difficulty := 1
+	difficulty := 2
 	hash := Sha256(bs)
 	tail := hash[len(hash)-difficulty:]
 	for i := 0; i < difficulty; i++ {
@@ -78,8 +79,8 @@ func (bc *Blockchain) ValidateBlockchain() bool {
 
 // Mine continuously accepts new transactions and attempts to mine a block containing
 // them by finding a proof value which satisfies the difficulty constraint
-func (bc *Blockchain) Mine(c chan Transaction) {
-	var t Transaction
+func (bc *Blockchain) Mine(c chan *Transaction) {
+	var t *Transaction
 	block := bc.NewBlock()
 
 	var counterInt32 uint32
@@ -89,7 +90,8 @@ func (bc *Blockchain) Mine(c chan Transaction) {
 	for {
 		select {
 		case t = <-c:
-			block.transactions.AddTransaction(t)
+			block.transactions.AddTransaction(*t)
+			fmt.Println("RECEIVED", *t)
 		default:
 			if block.transactions == nil {
 				continue
@@ -103,6 +105,7 @@ func (bc *Blockchain) Mine(c chan Transaction) {
 			if success == true {
 				block.proof = append([]byte(nil), counter...)
 				bc.AddBlock(block)
+				fmt.Println("MINED", block)
 				// TODO broadcast block to peers
 				lastBlock = block
 				block = bc.NewBlock()

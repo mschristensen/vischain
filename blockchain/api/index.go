@@ -8,6 +8,7 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
+	"github.com/mschristensen/brocoin/blockchain/core"
 )
 
 const APIUrl = "http://localhost:3001/api/v1"
@@ -19,12 +20,14 @@ const APIUrl = "http://localhost:3001/api/v1"
 //
 
 // Listen to incoming requests from peer nodes
-func Listen() {
+func Listen(c_t chan *core.Transaction) {
 	router := mux.NewRouter()
 
 	// Define routes
 	router.HandleFunc("/hello", Hello)
-	router.HandleFunc("/transaction", ReceiveTransaction).Methods("POST")
+	router.HandleFunc("/transaction", func(w http.ResponseWriter, r *http.Request) {
+		ReceiveTransaction(w, r, c_t)
+	}).Methods("POST")
 
 	// Start the server
 	http.ListenAndServe(":8080", router)

@@ -16,9 +16,12 @@ func main() {
 
 	bc := core.NewBlockchain()
 
-	c := make(chan core.Transaction)
-	go bc.Mine(c)
+	minerChanT := make(chan *core.Transaction)
+	apiChanT := make(chan *core.Transaction)
 
+	go bc.Mine(minerChanT)
+
+	go receiveTransactions(apiChanT, minerChanT)
 	// Add transactions until limit reached
 	// for i := 0; i < 1000; i++ {
 	// 	c <- randomTransaction()
@@ -38,7 +41,7 @@ func main() {
 	fmt.Println("BLOCK SENT    ", lb)
 	fmt.Println("BLOCK RECEIVED", *block)
 
-	api.Listen()
+	api.Listen(apiChanT)
 
 	// Strategy
 	//      Create a worker which listens to events and dispatches to relevant farmers
@@ -50,10 +53,11 @@ func main() {
 	//      Mine continuously + emit blocks
 }
 
-func randomTransaction() core.Transaction {
-	return core.Transaction{
-		Sender:    "from",
-		Recipient: "to",
-		Amount:    1,
+func receiveTransactions(apiChanT chan *core.Transaction, minerChanT chan *core.Transaction) {
+	for {
+		select {
+		case t := <-apiChanT:
+			minerChanT <- t
+		}
 	}
 }
