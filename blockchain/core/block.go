@@ -32,10 +32,9 @@ func (block *Block) ToJSON() string {
 
 		if i < len(block.transactions)-1 {
 			transactionsJSON += ","
-		} else {
-			transactionsJSON += "]"
 		}
 	}
+	transactionsJSON += "]"
 
 	return fmt.Sprintf(`{
         "index": "%d",

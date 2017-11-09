@@ -5,6 +5,7 @@
   "author": "Mike Christensen",
   "license": "MIT",
   "dependencies": {
+    "axios": "^0.17.0",
     "body-parser": "^1.18.2",
     "change-case": "^3.0.1",
     "dotenv": "^4.0.0",

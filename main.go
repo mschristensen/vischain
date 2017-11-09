@@ -2,21 +2,27 @@ package main
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/mschristensen/brocoin/blockchain/api"
 	"github.com/mschristensen/brocoin/blockchain/core"
+	"github.com/mschristensen/brocoin/blockchain/node"
 )
 
 func main() {
+	// init this node
+	args := os.Args[1:]
+	node.Init(args[0], args[1:])
+
 	bc := core.NewBlockchain()
 
 	c := make(chan core.Transaction)
 	go bc.Mine(c)
 
 	// Add transactions until limit reached
-	for i := 0; i < 1000; i++ {
-		c <- randomTransaction()
-	}
+	// for i := 0; i < 1000; i++ {
+	// 	c <- randomTransaction()
+	// }
 
 	// fmt.Println(bc)
 	// fmt.Println(bc.ValidateBlockchain())
@@ -25,12 +31,23 @@ func main() {
 	res, _ := api.Post("/hello", lb.ToJSON())
 	m, _ := api.ParseBody(res.Body)
 	block := &core.Block{}
-	block.FromMap(m)
-	fmt.Println("MAP", m)
+	a := api.APIResponse{}
+	a.FromMap(m)
+	block.FromMap(a.Payload)
+	fmt.Println("MAP", a.Payload)
 	fmt.Println("BLOCK SENT    ", lb)
 	fmt.Println("BLOCK RECEIVED", *block)
 
 	api.Listen()
+
+	// Strategy
+	//      Create a worker which listens to events and dispatches to relevant farmers
+
+	// Events:
+	//      Listen for transactions from peers
+	//      Listen for invoked transactions
+	//      Listen for blocks from peers
+	//      Mine continuously + emit blocks
 }
 
 func randomTransaction() core.Transaction {

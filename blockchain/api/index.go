@@ -24,6 +24,7 @@ func Listen() {
 
 	// Define routes
 	router.HandleFunc("/hello", Hello)
+	router.HandleFunc("/transaction", ReceiveTransaction).Methods("POST")
 
 	// Start the server
 	http.ListenAndServe(":8080", router)
@@ -53,10 +54,10 @@ func ParseBody(body io.Reader) (map[string]interface{}, error) {
 		return nil, err
 	}
 
-	var parsedMap Response
+	var parsedMap map[string]interface{}
 	err = json.Unmarshal(data, &parsedMap)
 	if err != nil {
 		return nil, err
 	}
-	return parsedMap.Payload, nil
+	return parsedMap, nil
 }

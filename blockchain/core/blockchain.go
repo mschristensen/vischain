@@ -46,6 +46,23 @@ func (bc *Blockchain) ValidateBlock(lastBlock Block, block Block) bool {
 	return CompareHashes(block.prevHash, lastBlock.Hash()) && ProofOfWork(block.prevHash, block.proof)
 }
 
+// ProofOfWork implements a HashCash-based PoW algorithm.
+// Work is completed successfully if the hash of the block and a
+// given counter ends with a sufficient number of trailing zeroes.
+func ProofOfWork(blockHash []byte, counter []byte) bool {
+	bs := ConcatBytes(blockHash, counter)
+	difficulty := 1
+	hash := Sha256(bs)
+	tail := hash[len(hash)-difficulty:]
+	for i := 0; i < difficulty; i++ {
+		if tail[i] != 0 {
+			return false
+		}
+	}
+
+	return true
+}
+
 // ValidateBlockchain indicates whether an entire blockchain is valid
 func (bc *Blockchain) ValidateBlockchain() bool {
 	for i := 0; i < len(*bc); i++ {
