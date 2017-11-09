@@ -25,14 +25,13 @@ func (bc *Blockchain) LastBlock() Block {
 	return (*bc)[len(*bc)-1]
 }
 
-func (bc *Blockchain) NewBlock() Block {
-	lastBlock := bc.LastBlock()
+func (lb *Block) NewBlock() Block {
 	return Block{
-		index:        lastBlock.index + 1,
+		index:        lb.index + 1,
 		timestamp:    time.Now().UnixNano(),
 		transactions: nil,
 		proof:        nil,
-		prevHash:     lastBlock.Hash(),
+		prevHash:     lb.Hash(),
 	}
 }
 
@@ -79,21 +78,26 @@ func (bc *Blockchain) ValidateBlockchain() bool {
 
 // Mine continuously accepts new transactions and attempts to mine a block containing
 // them by finding a proof value which satisfies the difficulty constraint
-func (bc *Blockchain) Mine(c chan *Transaction) {
-	var t *Transaction
-	block := bc.NewBlock()
+func Mine(chanLB chan *Block, chanT chan *Transaction, chanB chan *Block) {
+	var t *Transaction // incoming transaction
+	var lb *Block      // current last block on the chain
+	var block Block    // block to mine
 
 	var counterInt32 uint32
 	counter := []byte{0, 0, 0, 0}
-	lastBlock := bc.LastBlock()
-	success := ProofOfWork(lastBlock.Hash(), counter)
+	// lastBlock := bc.LastBlock()
+	// success := ProofOfWork(lb.Hash(), counter)
+	success := false
 	for {
 		select {
-		case t = <-c:
+		case t = <-chanT:
 			block.transactions.AddTransaction(*t)
-			fmt.Println("RECEIVED", *t)
+			fmt.Println("RECEIVED TRANSACTION", *t)
+		case lb = <-chanLB:
+			block = lb.NewBlock()
+			fmt.Println("RECEIVED BLOCK", *lb)
 		default:
-			if block.transactions == nil {
+			if block.transactions == nil || lb == nil {
 				continue
 			}
 			// increment counter
@@ -101,14 +105,15 @@ func (bc *Blockchain) Mine(c chan *Transaction) {
 			counterInt32++
 			binary.LittleEndian.PutUint32(counter, counterInt32)
 
-			success = ProofOfWork(lastBlock.Hash(), counter)
+			success = ProofOfWork(lb.Hash(), counter)
 			if success == true {
 				block.proof = append([]byte(nil), counter...)
-				bc.AddBlock(block)
+				// bc.AddBlock(block)
+				chanB <- &block
 				fmt.Println("MINED", block)
 				// TODO broadcast block to peers
-				lastBlock = block
-				block = bc.NewBlock()
+				lb = &block
+				block = lb.NewBlock()
 			}
 		}
 	}
