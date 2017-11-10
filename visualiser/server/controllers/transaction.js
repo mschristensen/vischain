@@ -1,5 +1,5 @@
 const Response = require('../utils/response.js');
-const axios = require('axios');
+const Request = require('../utils/request');
 
 module.exports = function TransactionController(req, res, next) {
   return {
@@ -10,7 +10,9 @@ module.exports = function TransactionController(req, res, next) {
             url: `http://localhost:${req.body.recipient}/transaction`,
             headers: {'Content-Type': 'application/json'},
             data: req.body
-        }).then(response => {
+        })
+        Request.SendTransaction()
+        .then(response => {
             return Response.OK(response.data).send(res);
         }).catch(err => {
             console.log("ERR", err)
