@@ -14,7 +14,6 @@ c) give back to the bros
 
 ## Todo
 
-- Broadcast latest block once mined
 - Listen for incoming blocks and verify them
 - If an incoming block is verified and added to the chain, remove any transactions in pool which have already been mined and start again
 - Implement a block size limit

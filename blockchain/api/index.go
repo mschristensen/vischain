@@ -14,7 +14,7 @@ import (
 const APIUrl = "http://localhost:3001/api/v1"
 
 // Listen to incoming requests from peer nodes
-func Listen(chanT chan core.Transaction, chanB chan core.Block) {
+func Listen(addr string, chanT chan core.Transaction, chanB chan core.Block) {
 	router := mux.NewRouter()
 
 	// Define routes
@@ -27,7 +27,7 @@ func Listen(chanT chan core.Transaction, chanB chan core.Block) {
 	}).Methods("POST")
 
 	// Start the server
-	http.ListenAndServe(":8080", router)
+	http.ListenAndServe(":"+addr, router)
 }
 
 func Get(route string, target interface{}) error {

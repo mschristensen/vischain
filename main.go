@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/mschristensen/brocoin/blockchain/api"
 	"github.com/mschristensen/brocoin/blockchain/core"
@@ -12,7 +13,7 @@ import (
 func main() {
 	// init this node
 	args := os.Args[1:]
-	node.Init(args[0], args[1:])
+	self := node.Init(args[0], args[1:])
 
 	bc := core.NewBlockchain()
 
@@ -22,7 +23,7 @@ func main() {
 	apiChanT := make(chan core.Transaction)   // to receive inbound transactions from api
 	apiChanB := make(chan core.Block)         // to receive inbound blocks from api
 
-	go api.Listen(apiChanT, apiChanB)
+	go api.Listen(self.Address, apiChanT, apiChanB)
 	go core.Mine(minerChanLB, minerChanT, minerChanB)
 	go receiveTransactions(apiChanT, minerChanT)
 
@@ -41,7 +42,7 @@ func main() {
 
 				// broadcast the block to the network
 				// TODO: handle errors
-				r, _ := api.Post("/block", bMine.ToJSON())
+				r, _ := api.Post("/block?peers="+strings.Join(self.Peers, ","), bMine.ToJSON())
 				m, _ := api.ParseBody(r.Body)
 				response := api.APIResponse{}
 				response.FromMap(m)

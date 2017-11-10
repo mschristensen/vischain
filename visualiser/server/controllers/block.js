@@ -17,7 +17,7 @@ module.exports = function BlockController(req, res, next) {
         }
         
         Promise.all(all).then(response => {
-            return Response.OK(response.data).send(res);
+            return Response.OK({Code: 1}).send(res);
         }).catch(err => {
             console.log("ERR", err)
             return Response.InternalServerError(err).send(res);
