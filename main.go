@@ -20,14 +20,39 @@ func main() {
 	minerChanB := make(chan core.Block)       // to receive mined blocks from miner
 	minerChanLB := make(chan core.Block)      // to send updated last block on chain to miner
 	apiChanT := make(chan core.Transaction)   // to receive inbound transactions from api
+	apiChanB := make(chan core.Block)         // to receive inbound blocks from api
 
+	go api.Listen(apiChanT, apiChanB)
 	go core.Mine(minerChanLB, minerChanT, minerChanB)
-	go receiveMinedBlocks(minerChanLB, minerChanB)
 	go receiveTransactions(apiChanT, minerChanT)
 
 	// set miner up with the initial last block
 	lb := bc.LastBlock()
 	minerChanLB <- lb
+
+	var bMine core.Block
+	var bPeer core.Block
+	for {
+		select {
+		case bMine = <-minerChanB: // we've just mined a block.
+			last := bc.LastBlock()
+			if bMine.Validate(last) { // validate it
+				bc.AddBlock(bMine) // add it to the chain
+
+				// broadcast the block to the network
+				// TODO: handle errors
+				r, _ := api.Post("/block", bMine.ToJSON())
+				m, _ := api.ParseBody(r.Body)
+				response := api.APIResponse{}
+				response.FromMap(m)
+			} else {
+				// TODO: Notify of rejected/invalid block
+				fmt.Println("Mined block rejected as invalid", bMine)
+			}
+		case bPeer = <-apiChanB: // received a block from a peer
+			fmt.Println("RECEIVED FROM PEER", bPeer)
+		}
+	}
 
 	// fmt.Println(bc)
 	// fmt.Println(bc.ValidateBlockchain())
@@ -42,8 +67,6 @@ func main() {
 	fmt.Println("MAP", a.Payload)
 	fmt.Println("BLOCK SENT    ", lb)
 	fmt.Println("BLOCK RECEIVED", *block)
-
-	api.Listen(apiChanT)
 
 	// Strategy
 	//      Create a worker which listens to events and dispatches to relevant farmers
@@ -60,17 +83,6 @@ func receiveTransactions(apiChanT chan core.Transaction, minerChanT chan core.Tr
 		select {
 		case t := <-apiChanT:
 			minerChanT <- t
-		}
-	}
-}
-
-// TODO lock bc before forwarding on
-func receiveMinedBlocks(chanLB chan core.Block, chanB chan core.Block) {
-	for {
-		select {
-		case b := <-chanB:
-			// bc.AddBlock(b)
-			fmt.Println("BLOCK", b)
 		}
 	}
 }

@@ -25,25 +25,9 @@ func (bc *Blockchain) LastBlock() Block {
 	return (*bc)[len(*bc)-1]
 }
 
-func (lb *Block) NewBlock() Block {
-	return Block{
-		index:        lb.index + 1,
-		timestamp:    time.Now().UnixNano(),
-		transactions: nil,
-		proof:        nil,
-		prevHash:     lb.Hash(),
-	}
-}
-
 // AddBlock adds a block to the blockchain
 func (bc *Blockchain) AddBlock(block Block) {
 	*bc = append(*bc, block)
-}
-
-// ValidateBlock indicates whether a new block is valid, which it is iff.
-// its proof hashed with the last block hash satisfies the difficulty constraint
-func (bc *Blockchain) ValidateBlock(lastBlock Block, block Block) bool {
-	return CompareHashes(block.prevHash, lastBlock.Hash()) && ProofOfWork(block.prevHash, block.proof)
 }
 
 // ProofOfWork implements a HashCash-based PoW algorithm.
@@ -63,13 +47,13 @@ func ProofOfWork(blockHash []byte, counter []byte) bool {
 	return true
 }
 
-// ValidateBlockchain indicates whether an entire blockchain is valid
-func (bc *Blockchain) ValidateBlockchain() bool {
+// Validate indicates whether an entire blockchain is valid
+func (bc *Blockchain) Validate() bool {
 	for i := 0; i < len(*bc); i++ {
 		if i == 0 {
 			continue
 		}
-		if !bc.ValidateBlock((*bc)[i-1], (*bc)[i]) {
+		if !(*bc)[i].Validate((*bc)[i-1]) {
 			return false
 		}
 	}

@@ -13,20 +13,17 @@ import (
 
 const APIUrl = "http://localhost:3001/api/v1"
 
-// TODO:
-//      AddBlock
-//          New block received from peer
-//          POST /block
-//
-
 // Listen to incoming requests from peer nodes
-func Listen(chanT chan core.Transaction) {
+func Listen(chanT chan core.Transaction, chanB chan core.Block) {
 	router := mux.NewRouter()
 
 	// Define routes
 	router.HandleFunc("/hello", Hello)
 	router.HandleFunc("/transaction", func(w http.ResponseWriter, r *http.Request) {
 		ReceiveTransaction(w, r, chanT)
+	}).Methods("POST")
+	router.HandleFunc("/block", func(w http.ResponseWriter, r *http.Request) {
+		ReceiveBlock(w, r, chanB)
 	}).Methods("POST")
 
 	// Start the server

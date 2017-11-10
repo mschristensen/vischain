@@ -4,6 +4,7 @@ import (
 	"encoding/base64"
 	"fmt"
 	"strconv"
+	"time"
 )
 
 type Block struct {
@@ -16,6 +17,22 @@ type Block struct {
 
 func (block *Block) Hash() Hash {
 	return Sha256([]byte(fmt.Sprintf("%v", *block)))
+}
+
+func (lb *Block) NewBlock() Block {
+	return Block{
+		index:        lb.index + 1,
+		timestamp:    time.Now().UnixNano(),
+		transactions: nil,
+		proof:        nil,
+		prevHash:     lb.Hash(),
+	}
+}
+
+// Validate indicates whether a new block is valid, which it is iff.
+// its proof hashed with the last block hash satisfies the difficulty constraint
+func (block *Block) Validate(lb Block) bool {
+	return CompareHashes(block.prevHash, lb.Hash()) && ProofOfWork(block.prevHash, block.proof)
 }
 
 // ToJSON encodes the block as a JSON string.
