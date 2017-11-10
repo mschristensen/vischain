@@ -78,10 +78,10 @@ func (bc *Blockchain) ValidateBlockchain() bool {
 
 // Mine continuously accepts new transactions and attempts to mine a block containing
 // them by finding a proof value which satisfies the difficulty constraint
-func Mine(chanLB chan *Block, chanT chan *Transaction, chanB chan *Block) {
-	var t *Transaction // incoming transaction
-	var lb *Block      // current last block on the chain
-	var block Block    // block to mine
+func Mine(chanLB chan Block, chanT chan Transaction, chanB chan Block) {
+	var t Transaction // incoming transaction
+	var lb Block      // current last block on the chain
+	var block Block   // block to mine
 
 	var counterInt32 uint32
 	counter := []byte{0, 0, 0, 0}
@@ -91,13 +91,13 @@ func Mine(chanLB chan *Block, chanT chan *Transaction, chanB chan *Block) {
 	for {
 		select {
 		case t = <-chanT:
-			block.transactions.AddTransaction(*t)
-			fmt.Println("RECEIVED TRANSACTION", *t)
+			block.transactions.AddTransaction(t)
+			fmt.Println("RECEIVED TRANSACTION", t)
 		case lb = <-chanLB:
 			block = lb.NewBlock()
-			fmt.Println("RECEIVED BLOCK", *lb)
+			fmt.Println("RECEIVED BLOCK", lb)
 		default:
-			if block.transactions == nil || lb == nil {
+			if block.transactions == nil || &lb == nil {
 				continue
 			}
 			// increment counter
@@ -109,10 +109,10 @@ func Mine(chanLB chan *Block, chanT chan *Transaction, chanB chan *Block) {
 			if success == true {
 				block.proof = append([]byte(nil), counter...)
 				// bc.AddBlock(block)
-				chanB <- &block
+				chanB <- block
 				fmt.Println("MINED", block)
 				// TODO broadcast block to peers
-				lb = &block
+				lb = block
 				block = lb.NewBlock()
 			}
 		}

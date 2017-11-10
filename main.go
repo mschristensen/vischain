@@ -16,10 +16,10 @@ func main() {
 
 	bc := core.NewBlockchain()
 
-	minerChanT := make(chan *core.Transaction) // to forward inbound transactions to miner
-	minerChanB := make(chan *core.Block)       // to receive mined blocks from miner
-	minerChanLB := make(chan *core.Block)      // to send updated last block on chain to miner
-	apiChanT := make(chan *core.Transaction)   // to receive inbound transactions from api
+	minerChanT := make(chan core.Transaction) // to forward inbound transactions to miner
+	minerChanB := make(chan core.Block)       // to receive mined blocks from miner
+	minerChanLB := make(chan core.Block)      // to send updated last block on chain to miner
+	apiChanT := make(chan core.Transaction)   // to receive inbound transactions from api
 
 	go core.Mine(minerChanLB, minerChanT, minerChanB)
 	go receiveMinedBlocks(minerChanLB, minerChanB)
@@ -27,7 +27,7 @@ func main() {
 
 	// set miner up with the initial last block
 	lb := bc.LastBlock()
-	minerChanLB <- &lb
+	minerChanLB <- lb
 
 	// fmt.Println(bc)
 	// fmt.Println(bc.ValidateBlockchain())
@@ -55,7 +55,7 @@ func main() {
 	//      Mine continuously + emit blocks
 }
 
-func receiveTransactions(apiChanT chan *core.Transaction, minerChanT chan *core.Transaction) {
+func receiveTransactions(apiChanT chan core.Transaction, minerChanT chan core.Transaction) {
 	for {
 		select {
 		case t := <-apiChanT:
@@ -65,11 +65,12 @@ func receiveTransactions(apiChanT chan *core.Transaction, minerChanT chan *core.
 }
 
 // TODO lock bc before forwarding on
-func receiveMinedBlocks(chanLB chan *core.Block, chanB chan *core.Block) {
+func receiveMinedBlocks(chanLB chan core.Block, chanB chan core.Block) {
 	for {
 		select {
 		case b := <-chanB:
-			bc.AddBlock(*b)
+			// bc.AddBlock(b)
+			fmt.Println("BLOCK", b)
 		}
 	}
 }

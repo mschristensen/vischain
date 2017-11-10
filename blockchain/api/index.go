@@ -20,13 +20,13 @@ const APIUrl = "http://localhost:3001/api/v1"
 //
 
 // Listen to incoming requests from peer nodes
-func Listen(c_t chan *core.Transaction) {
+func Listen(chanT chan core.Transaction) {
 	router := mux.NewRouter()
 
 	// Define routes
 	router.HandleFunc("/hello", Hello)
 	router.HandleFunc("/transaction", func(w http.ResponseWriter, r *http.Request) {
-		ReceiveTransaction(w, r, c_t)
+		ReceiveTransaction(w, r, chanT)
 	}).Methods("POST")
 
 	// Start the server
