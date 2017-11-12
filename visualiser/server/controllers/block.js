@@ -1,27 +1,37 @@
+const logger = require('winston');
+const Request = require('../utils/request.js');
 const Response = require('../utils/response.js');
-const axios = require('axios');
+const Validator = require('../utils/validator.js');
+const Rx = require('rxjs/Rx');
 
 module.exports = function BlockController(req, res, next) {
-  return {
-    receiveBlock: (forwardTo) => {
-        console.log("Received", req.body);
-        
-        let all = [];
-        for (let peer of forwardTo) {
-            all.push(axios({
-                method: 'post',
-                url: `http://localhost:${peer}/block`,
-                headers: {'Content-Type': 'application/json'},
-                data: req.body
-            }));
+    return {
+        receiveBlock: (forwardTo) => {
+            new Validator().Block(req.body).then(() => {
+                let all = [];
+                for (let peer of forwardTo) {
+                    all.push(
+                        Rx.Observable.fromPromise(
+                            new Request(peer).SendBlock(req.body)
+                        )
+                    );
+                }
+                return Rx.Observable.forkJoin(...all).toPromise();
+            }).then(responses => {
+                result = {};
+                for (let i in forwardTo) {
+                    result[forwardTo[i]] = responses[i].data
+                }
+                return Response.OK(result).send(res);
+            }).catch(err => {
+                if (err.isJoi) {
+                    return Response.BadRequest().send(res);
+                }
+                if (err.code === 'ECONNREFUSED') {
+                    return Response.BadGateway().send(res); 
+                }
+                return Response.InternalServerError().send(res);
+            });
         }
-        
-        Promise.all(all).then(response => {
-            return Response.OK({Code: 1}).send(res);
-        }).catch(err => {
-            console.log("ERR", err)
-            return Response.InternalServerError(err).send(res);
-        });
-    }
-  };
+    };
 }

@@ -19,7 +19,7 @@ module.exports = function(router) {
 
         validate().then(() => {
             return BlockController(req, res).receiveBlock(peers);
-        }).catch(() => {
+        }).catch(err => {
             return Response.BadRequest().send(res);
         });
     });
