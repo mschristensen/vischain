@@ -49,11 +49,13 @@ func main() {
 				bc.AddBlock(bMine) // add it to the chain
 
 				// broadcast the block to the network
-				// TODO: handle errors response codes
 				r, err := api.Post("/block?peers="+strings.Join(self.Peers, ","), bMine.ToJSON())
 				if err != nil {
 					log.Fatal("Request to API resulted in an error")
 					panic(err)
+				}
+				if r.StatusCode != 200 {
+					log.Fatal(fmt.Sprintf("Request to API did not succeed, got HTTP %d", r.StatusCode))
 				}
 				m, err := api.ParseBody(r.Body)
 				if err != nil {
@@ -61,7 +63,6 @@ func main() {
 					panic(err)
 				}
 				response := api.Response{}
-				fmt.Println(m)
 				err = response.FromMap(m)
 				if err != nil {
 					log.Fatal("API response body could not be written to Response object")
