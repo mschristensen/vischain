@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"os"
 	"strings"
 
@@ -15,17 +16,24 @@ func main() {
 	args := os.Args[1:]
 	self := node.Init(args[0], args[1:])
 
+	// init the blockchain
 	bc := core.NewBlockchain()
 
+	// set up channels to communicate with goroutines
 	minerChanT := make(chan core.Transaction) // to forward inbound transactions to miner
 	minerChanB := make(chan core.Block)       // to receive mined blocks from miner
 	minerChanLB := make(chan core.Block)      // to send updated last block on chain to miner
 	apiChanT := make(chan core.Transaction)   // to receive inbound transactions from api
 	apiChanB := make(chan core.Block)         // to receive inbound blocks from api
 
+	// handle incoming requests from peer nodes, streaming out the data along the channels
 	go api.Listen(self.Address, apiChanT, apiChanB)
-	go core.Mine(minerChanLB, minerChanT, minerChanB)
+
+	// listen for incoming transactions received from peer nodes and forward to the mining process
 	go receiveTransactions(apiChanT, minerChanT)
+
+	// mine blocks
+	go core.Mine(minerChanLB, minerChanT, minerChanB)
 
 	// set miner up with the initial last block
 	lb := bc.LastBlock()
@@ -35,17 +43,31 @@ func main() {
 	var bPeer core.Block
 	for {
 		select {
-		case bMine = <-minerChanB: // we've just mined a block.
+		case bMine = <-minerChanB: // we've just mined a block
 			last := bc.LastBlock()
 			if bMine.Validate(last) { // validate it
 				bc.AddBlock(bMine) // add it to the chain
 
 				// broadcast the block to the network
-				// TODO: handle errors
-				r, _ := api.Post("/block?peers="+strings.Join(self.Peers, ","), bMine.ToJSON())
-				m, _ := api.ParseBody(r.Body)
-				response := api.APIResponse{}
-				response.FromMap(m)
+				// TODO: handle errors response codes
+				r, err := api.Post("/block?peers="+strings.Join(self.Peers, ","), bMine.ToJSON())
+				if err != nil {
+					log.Fatal("Request to API resulted in an error")
+					panic(err)
+				}
+				m, err := api.ParseBody(r.Body)
+				if err != nil {
+					log.Fatal("API response body could not be parsed")
+					panic(err)
+				}
+				response := api.Response{}
+				fmt.Println(m)
+				err = response.FromMap(m)
+				if err != nil {
+					log.Fatal("API response body could not be written to Response object")
+					panic(err)
+				}
+
 			} else {
 				// TODO: Notify of rejected/invalid block
 				fmt.Println("Mined block rejected as invalid", bMine)
@@ -54,29 +76,6 @@ func main() {
 			fmt.Println("RECEIVED FROM PEER", bPeer)
 		}
 	}
-
-	// fmt.Println(bc)
-	// fmt.Println(bc.ValidateBlockchain())
-
-	// lb := bc.LastBlock()
-	res, _ := api.Post("/hello", lb.ToJSON())
-	m, _ := api.ParseBody(res.Body)
-	block := &core.Block{}
-	a := api.APIResponse{}
-	a.FromMap(m)
-	block.FromMap(a.Payload)
-	fmt.Println("MAP", a.Payload)
-	fmt.Println("BLOCK SENT    ", lb)
-	fmt.Println("BLOCK RECEIVED", *block)
-
-	// Strategy
-	//      Create a worker which listens to events and dispatches to relevant farmers
-
-	// Events:
-	//      Listen for transactions from peers
-	//      Listen for invoked transactions
-	//      Listen for blocks from peers
-	//      Mine continuously + emit blocks
 }
 
 func receiveTransactions(apiChanT chan core.Transaction, minerChanT chan core.Transaction) {

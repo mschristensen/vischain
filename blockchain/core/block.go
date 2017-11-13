@@ -64,13 +64,28 @@ func (block *Block) ToJSON() string {
 
 // FromMap accepts an empty interface map describing a block
 // (parsed from a JSON) and stores its parsed contents in the Block.
-func (block *Block) FromMap(m map[string]interface{}) {
-	index, _ := strconv.ParseInt(m["index"].(string), 10, 64)
-	timestamp, _ := strconv.ParseInt(m["timestamp"].(string), 10, 64)
+func (block *Block) FromMap(m map[string]interface{}) error {
+	index, err := strconv.ParseInt(m["index"].(string), 10, 64)
+	if err != nil {
+		return err
+	}
+	timestamp, err := strconv.ParseInt(m["timestamp"].(string), 10, 64)
+	if err != nil {
+		return err
+	}
 	transactions := TransactionList{}
-	transactions.FromMap(m["transactions"].([]interface{}))
-	proof, _ := base64.StdEncoding.DecodeString(m["proof"].(string))
-	prevHash, _ := base64.StdEncoding.DecodeString(m["prevHash"].(string))
+	err = transactions.FromMap(m["transactions"].([]interface{}))
+	if err != nil {
+		return err
+	}
+	proof, err := base64.StdEncoding.DecodeString(m["proof"].(string))
+	if err != nil {
+		return err
+	}
+	prevHash, err := base64.StdEncoding.DecodeString(m["prevHash"].(string))
+	if err != nil {
+		return err
+	}
 
 	*block = Block{
 		index:        index,
@@ -79,4 +94,5 @@ func (block *Block) FromMap(m map[string]interface{}) {
 		proof:        proof,
 		prevHash:     prevHash,
 	}
+	return nil
 }

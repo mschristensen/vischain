@@ -18,7 +18,6 @@ func Listen(addr string, chanT chan core.Transaction, chanB chan core.Block) {
 	router := mux.NewRouter()
 
 	// Define routes
-	router.HandleFunc("/hello", Hello)
 	router.HandleFunc("/transaction", func(w http.ResponseWriter, r *http.Request) {
 		ReceiveTransaction(w, r, chanT)
 	}).Methods("POST")
@@ -30,20 +29,17 @@ func Listen(addr string, chanT chan core.Transaction, chanB chan core.Block) {
 	http.ListenAndServe(":"+addr, router)
 }
 
-func Get(route string, target interface{}) error {
-	resp, err := http.Get(APIUrl + route)
-	if err != nil {
-		return err
-	}
-	defer resp.Body.Close()
-
-	return json.NewDecoder(resp.Body).Decode(target)
-}
-
 // Post the JSON-encoded string `body` to the endpoint `route`
 func Post(route string, body string) (*http.Response, error) {
 	buf := bytes.NewBuffer([]byte(body))
-	return http.Post(APIUrl+route, "application/json; charset=utf-8", buf)
+	r, err := http.Post(APIUrl+route, "application/json; charset=utf-8", buf)
+
+	// if we have a BadGateway error, remove the offline nodes from our list of peers
+	if err == nil && r.StatusCode == 502 {
+		// TODO: ...
+	}
+
+	return r, err
 }
 
 // ParseBody parses application/json data of unknown shape

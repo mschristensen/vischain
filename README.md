@@ -130,6 +130,13 @@ Response example:
 }
 ```
 
+Response codes:
+Code | Description
+--- | ---
+1 | The transaction was received successfully
+2 | The request body could not be parsed
+3 | The transaction could not be parsed from the body
+
 ### `POST /block`
 Example request:
 
@@ -155,4 +162,11 @@ Response example:
     Code: 1
 }
 ```
+
+Response codes:
+Code | Description
+--- | ---
+1 | The block was received successfully
+2 | The request body could not be parsed
+3 | The block could not be parsed from the body
 

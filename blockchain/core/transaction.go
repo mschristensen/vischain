@@ -45,24 +45,31 @@ func (t *Transaction) ToJSON() string {
 
 // FromMap accepts an empty interface slice describing a transaction list
 // (parsed from a JSON) and stores its parsed contents in the TransactionList.
-func (tl *TransactionList) FromMap(m []interface{}) {
+func (tl *TransactionList) FromMap(m []interface{}) error {
 	var transactions TransactionList
 	for _, t := range m {
 		transaction := &Transaction{}
-		transaction.FromMap(t.(map[string]interface{}))
+		if err := transaction.FromMap(t.(map[string]interface{})); err != nil {
+			return err
+		}
 		transactions = append(transactions, *transaction)
 	}
 	*tl = transactions
+	return nil
 }
 
 // FromMap accepts an empty interface map describing a transaction
 // (parsed from a JSON) and stores its parsed contents in the Transaction.
-func (t *Transaction) FromMap(m map[string]interface{}) {
-	amount, _ := strconv.ParseUint(m["amount"].(string), 10, 16)
+func (t *Transaction) FromMap(m map[string]interface{}) error {
+	amount, err := strconv.ParseUint(m["amount"].(string), 10, 16)
+	if err != nil {
+		return err
+	}
 
 	*t = Transaction{
 		Sender:    m["sender"].(string),
 		Recipient: m["recipient"].(string),
 		Amount:    uint16(amount),
 	}
+	return nil
 }
