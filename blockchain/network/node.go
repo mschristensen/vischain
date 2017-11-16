@@ -74,7 +74,22 @@ func (node *Node) Start(wg *sync.WaitGroup) {
 				fmt.Println("Mined block rejected as invalid", bMine)
 			}
 		case bPeer = <-networkChanB: // received a block from a peer
-			fmt.Println("RECEIVED FROM PEER", bPeer)
+			last := node.Chain.LastBlock()
+			if bPeer.Validate(last) {
+				// someone has mined a valid block,
+				// add it to the chain and inform the mining process
+				node.Chain.AddBlock(bPeer)
+				minerChanLB <- node.Chain.LastBlock()
+			} else if bPeer.Index > lb.Index+1 {
+				// the peer may have a longer chain than us...
+				//
+			}
+			// TODO:
+			// if it extends our existing bc
+			//		validate block
+			//			append it, and inform miner of new LB
+			// if it is behind, ignore it
+			// if it is ahead,
 		}
 	}
 }
