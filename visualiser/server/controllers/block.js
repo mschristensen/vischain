@@ -6,8 +6,9 @@ const Rx = require('rxjs/Rx');
 
 module.exports = function BlockController(req, res, next) {
     return {
-        receiveBlock: (forwardTo) => {
-            new Validator().Block(req.body).then(() => {
+        receiveBlock: async (forwardTo) => {
+            try {
+                await new Validator().Block(req.body);
                 let all = [];
                 for (let peer of forwardTo) {
                     all.push(
@@ -16,22 +17,22 @@ module.exports = function BlockController(req, res, next) {
                         )
                     );
                 }
-                return Rx.Observable.forkJoin(...all).toPromise();
-            }).then(responses => {
+                let responses = await Rx.Observable.forkJoin(...all).toPromise();
                 result = {};
                 for (let i in forwardTo) {
                     result[forwardTo[i]] = responses[i].data
                 }
                 return Response.OK(result).send(res);
-            }).catch(err => {
+            } catch (err) {
                 if (err.isJoi) {
                     return Response.BadRequest().send(res);
                 }
                 if (err.code === 'ECONNREFUSED') {
                     return Response.BadGateway().send(res); 
                 }
+                logger.error(err);
                 return Response.InternalServerError().send(res);
-            });
+            };
         }
     };
 }

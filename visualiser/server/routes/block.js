@@ -7,7 +7,7 @@ const BlockController = require('../controllers/block');
 
 module.exports = function(router) {
   router.route('/')
-    .post((req, res) => {
+    .post(async (req, res) => {
         let peers = [];
         const validate = () => {
             if (!req.query.peers) {
@@ -15,12 +15,13 @@ module.exports = function(router) {
             }
             peers = req.query.peers.split(',');
             return Joi.validate(peers, Joi.array().min(1).unique().items(Joi.string()));
-        }
+        };
 
-        validate().then(() => {
-            return BlockController(req, res).receiveBlock(peers);
-        }).catch(err => {
+        try {
+            await validate();
+        } catch (err) {
             return Response.BadRequest().send(res);
-        });
+        }
+        return BlockController(req, res).receiveBlock(peers);
     });
 };

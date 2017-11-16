@@ -27,7 +27,7 @@ module.exports = class Validator {
         });
     }
 
-    Address(data) { return Joi.validate(data, this.Schemas.Address); }
-    Transaction(data) { return Joi.validate(data, this.Schemas.Transaction); }
-    Block(data) { return Joi.validate(data, this.Schemas.Block); }
+    async Address(data) { return Joi.validate(data, this.Schemas.Address); }
+    async Transaction(data) { return Joi.validate(data, this.Schemas.Transaction); }
+    async Block(data) { return Joi.validate(data, this.Schemas.Block); }
 };
