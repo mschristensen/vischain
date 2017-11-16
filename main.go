@@ -7,8 +7,8 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/mschristensen/brocoin/blockchain/api"
 	"github.com/mschristensen/brocoin/blockchain/core"
-	"github.com/mschristensen/brocoin/blockchain/node"
 )
 
 func main() {
@@ -19,10 +19,10 @@ func main() {
 	scanner.Split(bufio.ScanLines)
 
 	// create the nodes
-	var nodes []node.Node
+	var nodes []api.Node
 	for scanner.Scan() {
 		parts := strings.Fields(scanner.Text())
-		nodes = append(nodes, node.Node{
+		nodes = append(nodes, api.Node{
 			Address: parts[0],
 			Peers:   parts[1:],
 			Chain:   core.NewBlockchain(),

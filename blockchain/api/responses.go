@@ -20,6 +20,4 @@ func (r *Response) FromMap(m map[string]interface{}) error {
 
 // PeerResponse describes the shape of a HTTP response
 // received from a peer which we return to the API
-type PeerResponse struct {
-	Code int8
-}
+type PeerResponse map[string]interface{}

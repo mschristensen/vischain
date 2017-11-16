@@ -211,3 +211,9 @@ Response example:
     }, ...]
 }
 ```
+
+Response codes:
+Code | Description
+--- | ---
+1 | The tail of the chain was returned
+2 | The hash was not found, and the entire chain was returned

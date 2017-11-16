@@ -1,4 +1,4 @@
-package node
+package api
 
 import (
 	"fmt"
@@ -6,7 +6,6 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/mschristensen/brocoin/blockchain/api"
 	"github.com/mschristensen/brocoin/blockchain/core"
 )
 
@@ -28,7 +27,7 @@ func (node *Node) Start(wg *sync.WaitGroup) {
 	apiChanB := make(chan core.Block)         // to receive inbound blocks from api
 
 	// handle incoming requests from peer nodes, streaming out the data along the channels
-	go api.Listen(node.Address, apiChanT, apiChanB)
+	go Listen(node, apiChanT, apiChanB)
 
 	// listen for incoming transactions received from peer nodes and forward to the mining process
 	go receiveTransactions(apiChanT, minerChanT)
@@ -50,7 +49,7 @@ func (node *Node) Start(wg *sync.WaitGroup) {
 				node.Chain.AddBlock(bMine) // add it to the chain
 
 				// broadcast the block to the network
-				r, err := api.Post("/block?peers="+strings.Join(node.Peers, ","), bMine.ToJSON())
+				r, err := Post("/block?peers="+strings.Join(node.Peers, ","), bMine.ToJSON())
 				if err != nil {
 					log.Fatal("Request to API resulted in an error")
 					panic(err)
@@ -58,12 +57,12 @@ func (node *Node) Start(wg *sync.WaitGroup) {
 				if r.StatusCode != 200 {
 					log.Fatal(fmt.Sprintf("Request to API did not succeed, got HTTP %d", r.StatusCode))
 				}
-				m, err := api.ParseBody(r.Body)
+				m, err := ParseBody(r.Body)
 				if err != nil {
 					log.Fatal("API response body could not be parsed")
 					panic(err)
 				}
-				response := api.Response{}
+				response := Response{}
 				err = response.FromMap(m)
 				if err != nil {
 					log.Fatal("API response body could not be written to Response object")

@@ -14,7 +14,8 @@ import (
 const APIUrl = "http://localhost:3001/api/v1"
 
 // Listen to incoming requests from peer nodes
-func Listen(addr string, chanT chan core.Transaction, chanB chan core.Block) {
+// NOTE: `node` is shared across goroutines, treat it as readonly!
+func Listen(node *Node, chanT chan core.Transaction, chanB chan core.Block) {
 	router := mux.NewRouter()
 
 	// Define routes
@@ -24,9 +25,12 @@ func Listen(addr string, chanT chan core.Transaction, chanB chan core.Block) {
 	router.HandleFunc("/block", func(w http.ResponseWriter, r *http.Request) {
 		ReceiveBlock(w, r, chanB)
 	}).Methods("POST")
+	router.HandleFunc("/chain", func(w http.ResponseWriter, r *http.Request) {
+		GetChain(w, r, node.Chain)
+	}).Methods("GET")
 
 	// Start the server
-	http.ListenAndServe(":"+addr, router)
+	http.ListenAndServe(":"+node.Address, router)
 }
 
 // Post the JSON-encoded string `body` to the endpoint `route`

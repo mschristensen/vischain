@@ -15,7 +15,7 @@ func NewBlockchain() Blockchain {
 		timestamp:    time.Now().UnixNano(),
 		transactions: nil,
 		proof:        nil,
-		prevHash:     nil,
+		PrevHash:     nil,
 	}
 	bc = append(bc, genesis)
 	return bc

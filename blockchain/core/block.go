@@ -12,7 +12,7 @@ type Block struct {
 	timestamp    int64
 	transactions TransactionList
 	proof        Hash
-	prevHash     Hash
+	PrevHash     Hash
 }
 
 func (block *Block) Hash() Hash {
@@ -25,14 +25,14 @@ func (lb *Block) NewBlock() Block {
 		timestamp:    time.Now().UnixNano(),
 		transactions: nil,
 		proof:        nil,
-		prevHash:     lb.Hash(),
+		PrevHash:     lb.Hash(),
 	}
 }
 
 // Validate indicates whether a new block is valid, which it is iff.
 // its proof hashed with the last block hash satisfies the difficulty constraint
 func (block *Block) Validate(lb Block) bool {
-	return CompareHashes(block.prevHash, lb.Hash()) && ProofOfWork(block.prevHash, block.proof)
+	return CompareHashes(block.PrevHash, lb.Hash()) && ProofOfWork(block.PrevHash, block.proof)
 }
 
 // ToJSON encodes the block as a JSON string.
@@ -41,7 +41,7 @@ func (block *Block) Validate(lb Block) bool {
 //      timestamp       decimal string
 //      transactions    JSON representing transactions
 //      proof           base64 encoded string
-//      prevHash        prevHash encoded string
+//      PrevHash        PrevHash encoded string
 func (block *Block) ToJSON() string {
 	transactionsJSON := "["
 	for i, transaction := range block.transactions {
@@ -59,7 +59,7 @@ func (block *Block) ToJSON() string {
         "transactions": %v,
         "proof": "%v",
         "prevHash": "%v"
-    }`, block.index, block.timestamp, transactionsJSON, base64.StdEncoding.EncodeToString(block.proof), base64.StdEncoding.EncodeToString(block.prevHash))
+    }`, block.index, block.timestamp, transactionsJSON, base64.StdEncoding.EncodeToString(block.proof), base64.StdEncoding.EncodeToString(block.PrevHash))
 }
 
 // FromMap accepts an empty interface map describing a block
@@ -92,7 +92,7 @@ func (block *Block) FromMap(m map[string]interface{}) error {
 		timestamp:    timestamp,
 		transactions: transactions,
 		proof:        proof,
-		prevHash:     prevHash,
+		PrevHash:     prevHash,
 	}
 	return nil
 }
