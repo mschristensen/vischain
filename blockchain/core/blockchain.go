@@ -11,10 +11,10 @@ type Blockchain []Block
 func NewBlockchain() Blockchain {
 	var bc Blockchain
 	genesis := Block{
-		index:        0,
-		timestamp:    time.Now().UnixNano(),
-		transactions: nil,
-		proof:        nil,
+		Index:        0,
+		Timestamp:    time.Now().UnixNano(),
+		Transactions: nil,
+		Proof:        nil,
 		PrevHash:     nil,
 	}
 	bc = append(bc, genesis)
@@ -75,13 +75,13 @@ func Mine(chanLB chan Block, chanT chan Transaction, chanB chan Block) {
 	for {
 		select {
 		case t = <-chanT:
-			block.transactions.AddTransaction(t)
+			block.Transactions.AddTransaction(t)
 			fmt.Println("RECEIVED TRANSACTION", t)
 		case lb = <-chanLB:
 			block = lb.NewBlock()
 			fmt.Println("RECEIVED BLOCK", lb)
 		default:
-			if block.transactions == nil || &lb == nil {
+			if block.Transactions == nil || &lb == nil {
 				continue
 			}
 			// increment counter
@@ -91,7 +91,7 @@ func Mine(chanLB chan Block, chanT chan Transaction, chanB chan Block) {
 
 			success = ProofOfWork(lb.Hash(), counter)
 			if success == true {
-				block.proof = append([]byte(nil), counter...)
+				block.Proof = append([]byte(nil), counter...)
 				// bc.AddBlock(block)
 				chanB <- block
 				fmt.Println("MINED", block)

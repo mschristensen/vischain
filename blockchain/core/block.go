@@ -8,10 +8,10 @@ import (
 )
 
 type Block struct {
-	index        int64
-	timestamp    int64
-	transactions TransactionList
-	proof        Hash
+	Index        int64
+	Timestamp    int64
+	Transactions TransactionList
+	Proof        Hash
 	PrevHash     Hash
 }
 
@@ -21,10 +21,10 @@ func (block *Block) Hash() Hash {
 
 func (lb *Block) NewBlock() Block {
 	return Block{
-		index:        lb.index + 1,
-		timestamp:    time.Now().UnixNano(),
-		transactions: nil,
-		proof:        nil,
+		Index:        lb.Index + 1,
+		Timestamp:    time.Now().UnixNano(),
+		Transactions: nil,
+		Proof:        nil,
 		PrevHash:     lb.Hash(),
 	}
 }
@@ -32,7 +32,7 @@ func (lb *Block) NewBlock() Block {
 // Validate indicates whether a new block is valid, which it is iff.
 // its proof hashed with the last block hash satisfies the difficulty constraint
 func (block *Block) Validate(lb Block) bool {
-	return CompareHashes(block.PrevHash, lb.Hash()) && ProofOfWork(block.PrevHash, block.proof)
+	return CompareHashes(block.PrevHash, lb.Hash()) && ProofOfWork(block.PrevHash, block.Proof)
 }
 
 // ToJSON encodes the block as a JSON string.
@@ -44,10 +44,10 @@ func (block *Block) Validate(lb Block) bool {
 //      PrevHash        PrevHash encoded string
 func (block *Block) ToJSON() string {
 	transactionsJSON := "["
-	for i, transaction := range block.transactions {
+	for i, transaction := range block.Transactions {
 		transactionsJSON += transaction.ToJSON()
 
-		if i < len(block.transactions)-1 {
+		if i < len(block.Transactions)-1 {
 			transactionsJSON += ","
 		}
 	}
@@ -59,7 +59,7 @@ func (block *Block) ToJSON() string {
         "transactions": %v,
         "proof": "%v",
         "prevHash": "%v"
-    }`, block.index, block.timestamp, transactionsJSON, base64.StdEncoding.EncodeToString(block.proof), base64.StdEncoding.EncodeToString(block.PrevHash))
+    }`, block.Index, block.Timestamp, transactionsJSON, base64.StdEncoding.EncodeToString(block.Proof), base64.StdEncoding.EncodeToString(block.PrevHash))
 }
 
 // FromMap accepts an empty interface map describing a block
@@ -88,10 +88,10 @@ func (block *Block) FromMap(m map[string]interface{}) error {
 	}
 
 	*block = Block{
-		index:        index,
-		timestamp:    timestamp,
-		transactions: transactions,
-		proof:        proof,
+		Index:        index,
+		Timestamp:    timestamp,
+		Transactions: transactions,
+		Proof:        proof,
 		PrevHash:     prevHash,
 	}
 	return nil
