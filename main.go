@@ -18,14 +18,16 @@ func main() {
 	scanner := bufio.NewScanner(inFile)
 	scanner.Split(bufio.ScanLines)
 
-	// create the nodes
+	// create the nodes, with identical initial blockchains
 	var nodes []network.Node
+	chain := core.NewBlockchain()
 	for scanner.Scan() {
 		parts := strings.Fields(scanner.Text())
+		chainCopy := core.Blockchain{}
 		nodes = append(nodes, network.Node{
 			Address: parts[0],
 			Peers:   parts[1:],
-			Chain:   core.NewBlockchain(),
+			Chain:   append(chainCopy, chain...),
 		})
 	}
 
@@ -37,6 +39,5 @@ func main() {
 		go nodes[i].Start(&wg)
 	}
 
-	// Wait for all HTTP fetches to complete.
 	wg.Wait()
 }

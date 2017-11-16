@@ -17,14 +17,14 @@ type Node struct {
 
 func (node *Node) Start(wg *sync.WaitGroup) {
 
-	fmt.Println("Started Node on " + node.Address)
+	fmt.Println("Started Node on "+node.Address, node.Chain)
 
 	// set up channels to communicate with goroutines
-	minerChanT := make(chan core.Transaction) // to forward inbound transactions to miner
-	minerChanB := make(chan core.Block)       // to receive mined blocks from miner
-	minerChanLB := make(chan core.Block)      // to send updated last block on chain to miner
-	networkChanT := make(chan core.Transaction)   // to receive inbound transactions from network
-	networkChanB := make(chan core.Block)         // to receive inbound blocks from network
+	minerChanT := make(chan core.Transaction)   // to forward inbound transactions to miner
+	minerChanB := make(chan core.Block)         // to receive mined blocks from miner
+	minerChanLB := make(chan core.Block)        // to send updated last block on chain to miner
+	networkChanT := make(chan core.Transaction) // to receive inbound transactions from network
+	networkChanB := make(chan core.Block)       // to receive inbound blocks from network
 
 	// handle incoming requests from peer nodes, streaming out the data along the channels
 	go Listen(node, networkChanT, networkChanB)
