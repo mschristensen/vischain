@@ -1,4 +1,4 @@
-package api
+package network
 
 import (
 	"fmt"
@@ -23,14 +23,14 @@ func (node *Node) Start(wg *sync.WaitGroup) {
 	minerChanT := make(chan core.Transaction) // to forward inbound transactions to miner
 	minerChanB := make(chan core.Block)       // to receive mined blocks from miner
 	minerChanLB := make(chan core.Block)      // to send updated last block on chain to miner
-	apiChanT := make(chan core.Transaction)   // to receive inbound transactions from api
-	apiChanB := make(chan core.Block)         // to receive inbound blocks from api
+	networkChanT := make(chan core.Transaction)   // to receive inbound transactions from network
+	networkChanB := make(chan core.Block)         // to receive inbound blocks from network
 
 	// handle incoming requests from peer nodes, streaming out the data along the channels
-	go Listen(node, apiChanT, apiChanB)
+	go Listen(node, networkChanT, networkChanB)
 
 	// listen for incoming transactions received from peer nodes and forward to the mining process
-	go receiveTransactions(apiChanT, minerChanT)
+	go receiveTransactions(networkChanT, minerChanT)
 
 	// mine blocks
 	go core.Mine(minerChanLB, minerChanT, minerChanB)
@@ -73,16 +73,16 @@ func (node *Node) Start(wg *sync.WaitGroup) {
 				// TODO: Notify of rejected/invalid block
 				fmt.Println("Mined block rejected as invalid", bMine)
 			}
-		case bPeer = <-apiChanB: // received a block from a peer
+		case bPeer = <-networkChanB: // received a block from a peer
 			fmt.Println("RECEIVED FROM PEER", bPeer)
 		}
 	}
 }
 
-func receiveTransactions(apiChanT chan core.Transaction, minerChanT chan core.Transaction) {
+func receiveTransactions(networkChanT chan core.Transaction, minerChanT chan core.Transaction) {
 	for {
 		select {
-		case t := <-apiChanT:
+		case t := <-networkChanT:
 			minerChanT <- t
 		}
 	}

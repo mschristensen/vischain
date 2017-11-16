@@ -1,4 +1,4 @@
-package api
+package network
 
 // Response describes the format of a response
 // received from the API
