@@ -108,6 +108,19 @@ Response example:
 }
 ```
 
+### `GET /chain`
+
+Fetch a chain of blocks from a `peer`.
+
+Example request:
+
+```
+GET /chain?peer=8081&lastBlockHash=tDw6oL/3BxXN+pTY6o/8M6eVBcKsUow3YTQgl88BscY=
+```
+
+`// TODO: Response example`
+
+
 ## Nodes
 
 ### `POST /transaction`
@@ -169,3 +182,32 @@ Code | Description
 2 | The request body could not be parsed
 3 | The block could not be parsed from the body
 
+### `GET /chain`
+
+Fetch a chain of blocks from this node. If a `lastBlockHash` is provided, return `Code: 1` with all the blocks on the chain after and not including the specified block.
+If `lastBlockHash` is not found in the chain, the chain may have forked. Return `Code: 2` with the entire chain.
+
+Example request:
+
+```
+GET /chain?lastBlockHash=tDw6oL%2F3BxXN%2BpTY6o%2F8M6eVBcKsUow3YTQgl88BscY%3D
+```
+
+Response example:
+```
+{
+    Code: 1,
+    Payload: [{
+        "index": "2",
+        "timestamp": "1510332444551936900",
+        "transactions": [{
+            "sender": "8081", "recipient": "8080", "amount": "1"
+        },{
+            "sender": "8081", "recipient": "8080", "amount": "1"
+            
+        }],
+        "proof": "T5AEAA==",
+        "prevHash": "tDw6oL/3BxXN+pTY6o/8M6eVBcKsUow3YTQgl88BscY="
+    }, ...]
+}
+```
