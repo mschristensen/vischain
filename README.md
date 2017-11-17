@@ -14,10 +14,10 @@ c) give back to the bros
 
 ## Todo
 
-- Handle BadGateway errors (offline peers): manage peer connections centrally on API
 - Verify incoming blocks and do longest chain
 - If an incoming block is verified and added to the chain, remove any transactions in pool which have already been mined and start again
 - If a longer chain is selected, ensure we pool any unmined transactions which were in our "lost" blocks to mine later
+- Handle BadGateway errors (offline peers): manage peer connections centrally on API
 - Implement a block size limit
 - Once block size limit reached, keep collecting transactions anyway to mine later
 - Enforce fairness
@@ -35,6 +35,26 @@ c) give back to the bros
    - Set block size limit
 - Transaction fees
 - Implement UXTO + balance system https://www.cryptocompare.com/mining/guides/bitcoin-transaction-inputs-and-outputs/
+
+## Things to visualise
+
+- Nodes + connections
+- Node state:
+    - transaction pool, current chain
+- Node actions:
+    - block mined
+    - transaction rejected/accepted
+    - block rejected/accepted
+- Chain differences, level of concensus in network
+- Transaction broadcast
+- Block broadcast
+- Accounts/wallets + balances
+
+Parameters:
+- difficulty
+- block size
+- transaction rebroadcast time?
+- which nodes are miners? 
 
 
 ## Protocol

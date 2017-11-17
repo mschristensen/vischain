@@ -25,9 +25,16 @@ module.exports = class Validator {
             proof: Joi.string().length(8),
             prevHash: Joi.string().length(44)
         });
+        this.Schemas.Node = Joi.object().keys({
+            address: this.Schemas.Address,
+            peers: Joi.array().items(this.Schemas.Address)
+        });
+        this.Schemas.Network = Joi.array().items(this.Schemas.Node);
     }
 
     async Address(data) { return Joi.validate(data, this.Schemas.Address); }
     async Transaction(data) { return Joi.validate(data, this.Schemas.Transaction); }
     async Block(data) { return Joi.validate(data, this.Schemas.Block); }
+    async Node(data) { return Joi.validate(data, this.Schemas.Node); }
+    async Network(data) { return Joi.validate(data, this.Schemas.Network); }
 };

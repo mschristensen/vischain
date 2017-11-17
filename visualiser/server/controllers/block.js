@@ -3,6 +3,7 @@ const Request = require('../utils/request.js');
 const Response = require('../utils/response.js');
 const Validator = require('../utils/validator.js');
 const Rx = require('rxjs/Rx');
+const State = require('../utils/state');
 
 module.exports = function BlockController(req, res, next) {
     return {
