@@ -30,7 +30,8 @@ class State {
     async ConfigureNetwork() {
         return new Promise((resolve, reject) => {
             // read network configuration file and init state
-            fs.readFile('network.config', 'utf8', async (err, data) => {
+            // (path relative to where `node` process was initiated, should be in `visualiser`)
+            fs.readFile('../network.config', 'utf8', async (err, data) => {
                 if (err) {
                     return reject(err);
                 }
