@@ -37,8 +37,12 @@ module.exports = function() {
     logger.info('[SERVER] Initializing routes');
     require('../../routes/index')(app);
 
-    app.listen(process.env.PORT || 3001);
+    const server = app.listen(process.env.PORT || 3001);
     logger.info('[SERVER] Listening on port ' + (process.env.PORT || 3001));
+
+    // initialisations
+    require('../../utils/socket').Init(server);
+    require('../../utils/state').Init();
 
     return resolve(app);
   });

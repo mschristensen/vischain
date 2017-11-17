@@ -15,6 +15,7 @@
     "morgan": "^1.9.0",
     "require-dir": "^0.3.2",
     "rxjs": "^5.5.2",
+    "socket.io": "^2.0.4",
     "winston": "^2.4.0"
   },
   "scripts": {

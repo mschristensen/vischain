@@ -9,6 +9,7 @@
     "react-redux": "^5.0.6",
     "redux": "^3.7.2",
     "redux-thunk": "^2.2.0",
+    "socket.io-client": "^2.0.4",
     "underscore": "^1.8.3",
     "victory": "^0.21.0",
     "whatwg-fetch": "^2.0.3"

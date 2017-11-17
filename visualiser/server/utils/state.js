@@ -2,7 +2,8 @@
 
 const fs = require('fs');
 const Validator = require('./validator');
-
+const sm = require('./socket');
+const logger = require('winston');
 /**
  *  State schema:
  *  {
@@ -23,8 +24,13 @@ class State {
         this.state = {};
     }
 
+    // socket won't be ready in here!
     async Init() {
         await this.ConfigureNetwork();
+        sm.Socket().on('connect', (socket) => {
+            this.socket = socket;
+            this.Emit();
+        });
     }
 
     async ConfigureNetwork() {
@@ -54,8 +60,15 @@ class State {
             });
         });
     }
+
+    Emit() {
+        if (this.socket) {
+            this.socket.emit('stateUpdate', this.state);
+        } else {
+            logger.error('Tried to use socket before it was initialised!');
+        }
+    }
 };
 
 const state = new State();
-state.Init();
 module.exports = state;
