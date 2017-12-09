@@ -41,7 +41,7 @@ module.exports = function() {
     logger.info('[SERVER] Listening on port ' + (process.env.PORT || 3001));
 
     // initialisations
-    require('../../utils/socket').Init(server);
+    require('../../utils/socket-manager').Init(server);
     require('../../utils/state').Init();
 
     return resolve(app);
