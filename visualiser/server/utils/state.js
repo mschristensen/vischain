@@ -21,7 +21,10 @@ const logger = require('winston');
 class State {
 
     constructor() {
-        this.state = {};
+        this.state = {
+            network: [],
+            transactions: []
+        };
     }
 
     // socket won't be ready in here!
@@ -51,7 +54,7 @@ class State {
                     });
                 }
                 try {
-                    await new Validator().Network(network)
+                    await new Validator().Network(network);
                 } catch (err) {
                     return reject(err);
                 }
@@ -59,6 +62,26 @@ class State {
                 resolve();
             });
         });
+    }
+
+    async StartTransaction(transaction) {
+        return new Promise(async (resolve, reject) => {
+            try {
+                await new Validator().Transaction(transaction);
+            } catch (err) {
+                return reject(err);
+            }
+            if (this.state.transactions.indexOf(transaction) === -1) {
+                this.state.transactions.push(transaction);
+            }
+            return resolve();
+        });
+    }
+
+    StopTransaction(transaction) {
+        if (this.state.transactions.indexOf(transaction) > -1) {
+            this.state.transactions.splice(this.state.transactions.indexOf(transaction), 1);
+        }
     }
 
     Emit() {
