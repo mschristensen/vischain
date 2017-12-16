@@ -3,7 +3,6 @@ package network
 import (
 	"fmt"
 	"log"
-	"strings"
 	"sync"
 
 	"github.com/mschristensen/brocoin/blockchain/core"
@@ -49,7 +48,7 @@ func (node *Node) Start(wg *sync.WaitGroup) {
 				node.Chain.AddBlock(bMine) // add it to the chain
 
 				// broadcast the block to the network
-				r, err := Post("/block?peers="+strings.Join(node.Peers, ","), bMine.ToJSON())
+				r, err := Post("/block", bMine.ToAPIJSON(node.Address, node.Peers))
 				if err != nil {
 					log.Fatal("Request to API resulted in an error")
 					panic(err)

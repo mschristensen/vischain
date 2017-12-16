@@ -89,27 +89,27 @@ Response example:
 
 ### `POST /block`
 
-Block will be sent to all `peers` and responses returned in `payload`.
-
-Query params:
-
-- `peers`: comma separated list of peer addresses to forward the block to
+Block in `data` will be sent to all `recipients` and responses returned in `payload`.
 
 Example request:
 
 ```
-POST /block?peers=8081,8082
+POST /block
 {
-	"index": "5",
-	"timestamp": "1510332444551936900",
-	"transactions": [{
-		"sender": "8081", "recipient": "8080", "amount": "1"
-	},{
-    	"sender": "8081", "recipient": "8080", "amount": "1"
-		
-	}],
-	"proof": "T5AEAA==",
-	"prevHash": "tDw6oL/3BxXN+pTY6o/8M6eVBcKsUow3YTQgl88BscY="
+    originalSender: "8080",
+    recipients: ["8081", "8082"],
+    data: {
+        "index": "5",
+        "timestamp": "1510332444551936900",
+        "transactions": [{
+            "sender": "8081", "recipient": "8080", "amount": "1"
+        },{
+            "sender": "8081", "recipient": "8080", "amount": "1"
+            
+        }],
+        "proof": "T5AEAA==",
+        "prevHash": "tDw6oL/3BxXN+pTY6o/8M6eVBcKsUow3YTQgl88BscY="
+    }
 }
 ```
 

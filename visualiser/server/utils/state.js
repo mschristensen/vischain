@@ -22,8 +22,9 @@ class State {
 
     constructor() {
         this.state = {
-            network: [],
-            transactions: []
+            network: [],        // defines network topology
+            transactions: [],   // transactions currently in transit
+            blocks: []          // blocks currently in transit
         };
     }
 
@@ -64,23 +65,17 @@ class State {
         });
     }
 
-    async StartTransaction(transaction) {
-        return new Promise(async (resolve, reject) => {
-            try {
-                await new Validator().Transaction(transaction);
-            } catch (err) {
-                return reject(err);
-            }
-            if (this.state.transactions.indexOf(transaction) === -1) {
-                this.state.transactions.push(transaction);
-            }
-            return resolve();
-        });
+    Send(what, data) {
+        if (this.state[what].indexOf(data) === -1) {
+            this.state[what].push(data);
+            this.Emit();
+        }
     }
-
-    StopTransaction(transaction) {
-        if (this.state.transactions.indexOf(transaction) > -1) {
-            this.state.transactions.splice(this.state.transactions.indexOf(transaction), 1);
+    
+    Receive(what, data) {
+        if (this.state[what].indexOf(data) > -1) {
+            this.state[what].splice(this.state[what].indexOf(data), 1);
+            this.Emit();
         }
     }
 

@@ -96,3 +96,21 @@ func (block *Block) FromMap(m map[string]interface{}) error {
 	}
 	return nil
 }
+
+// ToAPIJSON generates a JSON for a Post request body to the API
+// describing the block to be sent, from and to whom.
+func (block *Block) ToAPIJSON(sender string, recipients []string) string {
+	recipientsJSON := "["
+	for i, recipient := range recipients {
+		recipientsJSON += (fmt.Sprintf("\"%v\"", recipient))
+		if i != len(recipients)-1 {
+			recipientsJSON += ","
+		}
+	}
+	recipientsJSON += "]"
+	return fmt.Sprintf(`{
+		"originalSender": "%v",
+		"recipients": %v,
+		"data": %v
+	}`, sender, recipientsJSON, block.ToJSON())
+}
