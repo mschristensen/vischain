@@ -30,7 +30,7 @@ class State {
 
     constructor() {
         this.state = {
-            network: [],        // defines network topology
+            topology: [],       // defines network topology
             transactions: [],   // transactions currently in transit
             blocks: []          // blocks currently in transit
         };
@@ -38,14 +38,14 @@ class State {
 
     // socket won't be ready in here!
     async Init() {
-        await this.ConfigureNetwork();
+        await this.ConfigureNetworkTopology();
         sm.Socket().on('connect', (socket) => {
             this.socket = socket;
             this.Emit();
         });
     }
 
-    async ConfigureNetwork() {
+    async ConfigureNetworkTopology() {
         return new Promise((resolve, reject) => {
             // read network configuration file and init state
             // (path relative to where `node` process was initiated, should be in `visualiser`)
@@ -53,21 +53,21 @@ class State {
                 if (err) {
                     return reject(err);
                 }
-                let network = [];
+                let topology = [];
                 data = data.split('\n');
                 for (let line of data) {
                     line = line.split(' ');
-                    network.push({
+                    topology.push({
                         address: line[0].trim(),
                         peers: line.slice(1).map(address => address.trim())
                     });
                 }
                 try {
-                    await new Validator().Network(network);
+                    await new Validator().Topology(topology);
                 } catch (err) {
                     return reject(err);
                 }
-                this.state.network = network;
+                this.state.topology = topology;
                 resolve();
             });
         });

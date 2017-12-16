@@ -15,7 +15,6 @@ module.exports = class Request {
         ['POST', 'PUT', 'GET', 'DELETE'].indexOf(method.toUpperCase()) === -1 ||
         !this.addr
     ) {
-        console.log("UH OH")
         return Promise.reject();
     }
 

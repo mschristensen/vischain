@@ -29,12 +29,12 @@ module.exports = class Validator {
             address: this.Schemas.Address,
             peers: Joi.array().items(this.Schemas.Address)
         });
-        this.Schemas.Network = Joi.array().items(this.Schemas.Node);
+        this.Schemas.Topology = Joi.array().items(this.Schemas.Node);
     }
 
     async Address(data) { return Joi.validate(data, this.Schemas.Address); }
     async Transaction(data) { return Joi.validate(data, this.Schemas.Transaction); }
     async Block(data) { return Joi.validate(data, this.Schemas.Block); }
     async Node(data) { return Joi.validate(data, this.Schemas.Node); }
-    async Network(data) { return Joi.validate(data, this.Schemas.Network); }
+    async Topology(data) { return Joi.validate(data, this.Schemas.Topology); }
 };

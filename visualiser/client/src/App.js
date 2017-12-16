@@ -3,26 +3,34 @@ import { connect } from 'react-redux';
 import io from 'socket.io-client';
 import './App.css';
 import { updateNetworkAction } from './actions/app';
+import Graph from './components/Graph/Graph';
+import Log from './components/Log/Log';
 
 class App extends Component {
 
     constructor(props) {
         super(props);
         this.state = {};
+        this.stateQueue = [];
+        this.stateFrameRate = 1;
     }
 
     componentDidMount() {
         const socket = io();
-        socket.on('stateUpdate', network => {
-            this.props.updateNetwork(network);
-        });
+        socket.on('stateUpdate', network => this.stateQueue.push(network));
+        setInterval(() => {
+            if (this.stateQueue.length) {
+                this.props.updateNetwork(this.stateQueue.shift());
+            }
+        }, 1000 / this.stateFrameRate);
     }
 
 	render() {
 		return (
 			<div className="App">
-                <h1>State:</h1>
-                <div><pre>{JSON.stringify(this.props.network, null, 2)}</pre></div>
+                <Graph />
+                <div><pre>{JSON.stringify(this.props, null, 2)}</pre></div>
+                <Log />
 			</div>
 		);
 	}
