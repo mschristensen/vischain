@@ -7,6 +7,6 @@ const TransactionController = require('../controllers/transaction');
 module.exports = function(router) {
   router.route('/')
     .post((req, res) => {
-        return TransactionController(req, res).receiveTransaction();
+        return TransactionController(req, res).sendTransaction();
     });
 };
