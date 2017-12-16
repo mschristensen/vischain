@@ -2,7 +2,7 @@
 
 const fs = require('fs');
 const Validator = require('./validator');
-const sm = require('./socket');
+const sm = require('./socket-manager');
 const logger = require('winston');
 /**
  *  State schema:
@@ -13,7 +13,15 @@ const logger = require('winston');
  *      }, {
  *          address: "8081",
  *          peers: ["8080", "8082"]
- *      }, ...]
+ *      }, ...],
+ *      broadcasts: [{
+ *          type: 'transaction',
+ *          data: {
+ *              sender: "8080",
+ *              recipient: "8081",
+ *              amount: 1
+ *          }
+ *      }]
  *  }
  */
 
