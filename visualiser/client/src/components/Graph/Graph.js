@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import cytoscape from 'cytoscape';
-import './Graph.css';
+import './Graph.scss';
 
 class Graph extends Component {
 

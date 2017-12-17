@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import './Log.css';
+import './Log.scss';
 
 class Log extends Component {
 

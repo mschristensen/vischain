@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import io from 'socket.io-client';
-import './App.css';
+import './App.scss';
 import { updateNetworkAction } from './actions/app';
 import Graph from './components/Graph/Graph';
 import Log from './components/Log/Log';
