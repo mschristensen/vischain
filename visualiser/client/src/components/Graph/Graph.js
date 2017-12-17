@@ -8,23 +8,46 @@ class Graph extends Component {
     constructor(props) {
         super(props);
         this.state = {};
+        this.cy = null;
+    }
+
+    getCyElements(topology) {
+        let elements = [];
+        for (let node of topology) {
+            elements.push({
+                data: {
+                    id: node.address
+                },
+                group: 'nodes'
+            });
+            for (let peer of node.peers) {
+                elements.push({
+                    data: {
+                        id: `${node.address}${peer}`,
+                        source: node.address,
+                        target: peer
+                    },
+                    group: 'edges'
+                });
+            }
+        }
+        return elements;
+    }
+
+    componentWillReceiveProps(props) {
+        if (this.props.network !== props.network) {
+            this.cy.add(this.getCyElements(props.network.topology));
+            this.cy.elements().layout({
+                name: 'random'
+            }).run();
+        }
     }
 
     componentDidMount() {
-        let cy = cytoscape({
-            container: document.getElementById('vc-graph'),
-            elements: [ // list of graph elements to start with
-                { // node a
-                    data: { id: 'a' }
-                },
-                { // node b
-                    data: { id: 'b' }
-                },
-                { // edge ab
-                    data: { id: 'ab', source: 'a', target: 'b' }
-                }
-            ],
+        this.cy = cytoscape({
+            container: document.getElementById('vc-graph')
         });
+        this.cy.zoomingEnabled(false);
     }
 
     render() {
