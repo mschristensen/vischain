@@ -5,10 +5,10 @@ const initialState = Map({
     network: {}
 });
 
-export function network(state = initialState, action) {
+export function network(state = initialState.get('network'), action) {
     switch (action.type) {
         case UPDATE_NETWORK:
-            return state.set('network', action.network);
+            return action.network;
         default:
             return state;
     }
