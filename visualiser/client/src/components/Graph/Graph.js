@@ -10,6 +10,29 @@ class Graph extends Component {
         super(props);
         this.state = {};
         this.cy = null;
+        this.colors = {
+            edge: {
+                default: '#90A4AE',
+                transaction: '#4CAF50'
+            },
+            node: {
+                default: '#90A4AE'
+            }
+        };
+        this.sizes = {
+            edge: {
+                width: {
+                    default: '3px',
+                    selected: '4px'
+                }
+            },
+            arrow: {
+                scale: {
+                    default: 1,
+                    selected: 1.5
+                }
+            }
+        };
     }
 
     deepArrayCompare(elementsA, elementsB) {
@@ -50,18 +73,38 @@ class Graph extends Component {
     componentWillReceiveProps(props) {
         if (this.props.network !== props.network) {
             // update the graph elements iff. the network topology has changed
-            let topologyCurr = this.props.network.topology;
-            let topologyNext = props.network.topology;
-            if (!topologyCurr) { topologyCurr = []; }
-            if (!topologyNext) { topologyNext = []; }
-            topologyCurr = this.getCyElements(topologyCurr);
-            topologyNext = this.getCyElements(topologyNext);
+            let topologyCurr = this.props.network.topology || [];
+            let topologyNext = props.network.topology || [];
             if (!this.deepArrayCompare(topologyCurr, topologyNext)) {
                 this.cy.elements().remove();
-                this.cy.add(topologyNext);
+                this.cy.add(this.getCyElements(topologyNext));
                 this.cy.elements().layout({
                     name: 'random'
                 }).run();
+            }
+
+            // update the edge colours iff. the transactions have changed
+            let transactionsCurr = this.props.network.transactions || [];
+            let transactionsNext = props.network.transactions || [];
+            if (!this.deepArrayCompare(transactionsCurr, transactionsNext)) {
+                // unstyle all current transactions
+                for (let t of transactionsCurr) {
+                    this.cy.elements(`edge[id = "${t.sender}${t.recipient}"]`).style({
+                        'line-color': this.colors.edge.default,
+                        'width': this.sizes.edge.width.default,
+                        'target-arrow-color': this.colors.edge.default,
+                        'arrow-scale': this.sizes.arrow.scale.default
+                    });
+                }
+                // style all next transactions
+                for (let t of transactionsNext) {
+                    this.cy.elements(`edge[id = "${t.sender}${t.recipient}"]`).style({
+                        'line-color': this.colors.edge.transaction,
+                        'width': this.sizes.edge.width.selected,
+                        'target-arrow-color': this.colors.edge.transaction,
+                        'arrow-scale': this.sizes.arrow.scale.selected
+                    });
+                }
             }
         }
     }
@@ -79,7 +122,11 @@ class Graph extends Component {
                     selector: 'edge',
                     style: {
                         'curve-style': 'unbundled-bezier',
-                        'target-arrow-shape': 'triangle'
+                        'target-arrow-shape': 'triangle',
+                        'line-color': this.colors.edge.default,
+                        'target-arrow-color': this.colors.edge.default,
+                        'arrow-scale': this.sizes.arrow.scale.default,
+                        'width': this.sizes.edge.width.default
                     }
                 }
             ]
