@@ -13,7 +13,8 @@ class Graph extends Component {
         this.colors = {
             edge: {
                 default: '#90A4AE',
-                transaction: '#4CAF50'
+                transaction: '#4CAF50',
+                block: '#1E88E5'
             },
             node: {
                 default: '#90A4AE'
@@ -83,7 +84,7 @@ class Graph extends Component {
                 }).run();
             }
 
-            // update the edge colours iff. the transactions have changed
+            // update the edge colours if the transactions have changed
             let transactionsCurr = this.props.network.transactions || [];
             let transactionsNext = props.network.transactions || [];
             if (!this.deepArrayCompare(transactionsCurr, transactionsNext)) {
@@ -106,6 +107,35 @@ class Graph extends Component {
                     });
                 }
             }
+
+            // update the edge colours if the blocks have changed
+            let blocksCurr = this.props.network.blocks || [];
+            let blocksNext = props.network.blocks || [];
+            if (!this.deepArrayCompare(blocksCurr, blocksNext)) {
+                // unstyle all current blocks
+                for (let b of blocksCurr) {
+                    for (let recipient of b.recipients) {
+                        this.cy.elements(`edge[id = "${b.originalSender}${recipient}"]`).style({
+                            'line-color': this.colors.edge.default,
+                            'width': this.sizes.edge.width.default,
+                            'target-arrow-color': this.colors.edge.default,
+                            'arrow-scale': this.sizes.arrow.scale.default
+                        });
+                    }
+                }
+
+                // style all next blocks
+                for (let b of blocksNext) {
+                    for (let recipient of b.recipients) {
+                        this.cy.elements(`edge[id = "${b.originalSender}${recipient}"]`).style({
+                            'line-color': this.colors.edge.block,
+                            'width': this.sizes.edge.width.selected,
+                            'target-arrow-color': this.colors.edge.block,
+                            'arrow-scale': this.sizes.arrow.scale.selected
+                        });
+                    }
+                }
+            }
         }
     }
 
@@ -116,7 +146,9 @@ class Graph extends Component {
             style: [
                 {
                     selector: 'node',
-                    style: {}
+                    style: {
+                        'background-color': this.colors.node.default
+                    }
                 },
                 {
                     selector: 'edge',
