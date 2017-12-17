@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import cytoscape from 'cytoscape';
 import './Graph.css';
+import * as _ from 'underscore';
 
 class Graph extends Component {
 
@@ -10,6 +11,18 @@ class Graph extends Component {
         this.state = {};
         this.cy = null;
     }
+
+    deepArrayCompare(elementsA, elementsB) {
+        if (elementsA.length !== elementsB.length) {
+            return false;
+        }
+        for (let i in elementsA) {
+            if (!_.isEqual(elementsA[i], elementsB[i])) {
+                return false;
+            }
+        }
+        return true;
+    } 
 
     getCyElements(topology) {
         let elements = [];
@@ -36,16 +49,40 @@ class Graph extends Component {
 
     componentWillReceiveProps(props) {
         if (this.props.network !== props.network) {
-            this.cy.add(this.getCyElements(props.network.topology));
-            this.cy.elements().layout({
-                name: 'random'
-            }).run();
+            // update the graph elements iff. the network topology has changed
+            let topologyCurr = this.props.network.topology;
+            let topologyNext = props.network.topology;
+            if (!topologyCurr) { topologyCurr = []; }
+            if (!topologyNext) { topologyNext = []; }
+            topologyCurr = this.getCyElements(topologyCurr);
+            topologyNext = this.getCyElements(topologyNext);
+            if (!this.deepArrayCompare(topologyCurr, topologyNext)) {
+                this.cy.elements().remove();
+                this.cy.add(topologyNext);
+                this.cy.elements().layout({
+                    name: 'random'
+                }).run();
+            }
         }
     }
 
     componentDidMount() {
+        // init cytoscape
         this.cy = cytoscape({
-            container: document.getElementById('vc-graph')
+            container: document.getElementById('vc-graph'),
+            style: [
+                {
+                    selector: 'node',
+                    style: {}
+                },
+                {
+                    selector: 'edge',
+                    style: {
+                        'curve-style': 'unbundled-bezier',
+                        'target-arrow-shape': 'triangle'
+                    }
+                }
+            ]
         });
         this.cy.zoomingEnabled(false);
     }
