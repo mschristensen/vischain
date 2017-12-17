@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import io from 'socket.io-client';
-import './App.scss';
+import './App.css';
 import { updateNetworkAction } from './actions/app';
 import Graph from './components/Graph/Graph';
 import Log from './components/Log/Log';
@@ -29,7 +29,6 @@ class App extends Component {
 		return (
 			<div className="App">
                 <Graph />
-                <div><pre>{JSON.stringify(this.props, null, 2)}</pre></div>
                 <Log />
 			</div>
 		);

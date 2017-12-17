@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import './Log.scss';
+import './Log.css';
 
 class Log extends Component {
 
@@ -20,11 +20,12 @@ class Log extends Component {
 	render() {
 		return (
 			<div className="vc-log">
-                <ul>
+                {/* <ul>
                     {this.state.logs.length > 1 && this.state.logs.map((entry, i) => <li key={i}>
                         { entry }
                     </li>)}
-                </ul>
+                </ul> */}
+                <pre>{JSON.stringify(this.props, null, 2)}</pre>
             </div>
 		);
 	}

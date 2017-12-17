@@ -7,9 +7,11 @@ h1, h2, h3, h4, h5, h6 {
 	width: 100%;
 	height: 100%;
 	display: flex;
-	flex-direction: column;
-}
 
-.App #vc-graph {
-	flex: 1;
+	#vc-graph, #vc-log {
+	}
+
+	#vc-graph {
+		width: calc(100% - 400px);
+	}
 }
