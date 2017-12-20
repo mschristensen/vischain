@@ -33,6 +33,7 @@ module.exports = class Validator {
     }
 
     async Address(data) { return Joi.validate(data, this.Schemas.Address); }
+    async Recipients(data) { return Joi.validate(data, Joi.array().min(1).unique().items(this.Schemas.Address)); }
     async Transaction(data) { return Joi.validate(data, this.Schemas.Transaction); }
     async Block(data) { return Joi.validate(data, this.Schemas.Block); }
     async Node(data) { return Joi.validate(data, this.Schemas.Node); }

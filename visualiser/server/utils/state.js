@@ -22,11 +22,7 @@ class State {
         try {
             await this.ConfigureNetworkTopology();
             for (let node of this.state.topology) {
-                let response = await this.SyncNodeChain(node.address);
-                this.state.chains.push({
-                    address: node.address,
-                    chain: response.data.payload
-                });
+                await this.SyncNodeChain(node.address);
             }
         } catch (err) {
             logger.error(err);
@@ -66,12 +62,24 @@ class State {
     }
 
     async SyncNodeChain(address) {
+        let response;
         try {
             await new Validator().Address(address);
+            response = await new Request(address).GetChain();
         } catch (err) {
             return Promise.reject(err);
         }
-        return new Request(address).GetChain();
+        let idx = this.state.chains.map(chain => chain.address).indexOf(address);
+        let newChain = {
+            address,
+            chain: response.data.payload
+        };
+        if (idx > -1) {
+            this.state.chains[idx] = newChain;
+        } else {
+            this.state.chains.push(newChain);
+        }
+        return Promise.resolve();
     }
 
     Send(what, data) {
@@ -80,8 +88,8 @@ class State {
             this.Emit();
         }
     }
-    
-    Receive(what, data) {
+
+    Receive(what, data, recipientAddr) {
         if (this.state[what].indexOf(data) > -1) {
             this.state[what].splice(this.state[what].indexOf(data), 1);
             this.Emit();
