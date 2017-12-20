@@ -34,9 +34,13 @@ func Listen(node *Node, chanT chan core.Transaction, chanB chan core.Block) {
 }
 
 // Post the JSON-encoded string `body` to the endpoint `route`
-func Post(route string, body string) (*http.Response, error) {
+func Post(route string, body string, sender string) (*http.Response, error) {
 	buf := bytes.NewBuffer([]byte(body))
-	r, err := http.Post(APIUrl+route, "application/json; charset=utf-8", buf)
+	req, _ := http.NewRequest("POST", APIUrl+route, buf)
+	req.Header.Add("Content-Type", "application/json; charset=utf-8")
+	req.Header.Add("X-Sender", sender)
+	client := &http.Client{}
+	r, err := client.Do(req)
 
 	// if we have a BadGateway error, remove the offline nodes from our list of peers
 	if err == nil && r.StatusCode == 502 {
