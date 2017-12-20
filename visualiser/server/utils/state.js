@@ -4,27 +4,7 @@ const fs = require('fs');
 const Validator = require('./validator');
 const sm = require('./socket-manager');
 const logger = require('winston');
-/**
- *  State schema:
- *  {
- *      network: [{
- *          address: "8080",
- *          peers: ["8081", "8082"]
- *      }, {
- *          address: "8081",
- *          peers: ["8080", "8082"]
- *      }, ...],
- *      broadcasts: [{
- *          type: 'transaction',
- *          data: {
- *              sender: "8080",
- *              recipient: "8081",
- *              amount: 1
- *          }
- *      }]
- *  }
- */
-
+const Request = require('./request');
 
 class State {
 
@@ -32,13 +12,25 @@ class State {
         this.state = {
             topology: [],       // defines network topology
             transactions: [],   // transactions currently in transit
-            blocks: []          // blocks currently in transit
+            blocks: [],         // blocks currently in transit
+            chains: [],         // local blockchain for each node
         };
     }
 
     // socket won't be ready in here!
     async Init() {
-        await this.ConfigureNetworkTopology();
+        try {
+            await this.ConfigureNetworkTopology();
+            for (let node of this.state.topology) {
+                let response = await this.SyncNodeChain(node.address);
+                this.state.chains.push({
+                    address: node.address,
+                    chain: response.data.payload
+                });
+            }
+        } catch (err) {
+            logger.error(err);
+        }
         sm.Socket().on('connect', (socket) => {
             this.socket = socket;
             this.Emit();
@@ -71,6 +63,15 @@ class State {
                 resolve();
             });
         });
+    }
+
+    async SyncNodeChain(address) {
+        try {
+            await new Validator().Address(address);
+        } catch (err) {
+            return Promise.reject(err);
+        }
+        return new Request(address).GetChain();
     }
 
     Send(what, data) {
