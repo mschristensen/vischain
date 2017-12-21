@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 import cytoscape from 'cytoscape';
 import './Graph.css';
 import * as _ from 'underscore';
+import * as ColorHash from 'color-hash';
 
 class Graph extends Component {
 
@@ -134,6 +135,20 @@ class Graph extends Component {
                             'arrow-scale': this.sizes.arrow.scale.selected
                         });
                     }
+                }
+            }
+
+            // update the node colours if the chains have changed
+            let chainsCurr = this.props.network.chains || [];
+            let chainsNext = props.network.chains || [];
+            if (!this.deepArrayCompare(chainsCurr, chainsNext)) {
+                for (let item of chainsNext) {
+                    const color = item.chain[item.chain.length - 1].PrevHash ? new ColorHash().hex(
+                        item.chain[item.chain.length - 1].PrevHash
+                    ) : this.colors.node.default;
+                    this.cy.elements(`node[id = "${item.address}"]`).style({
+                        'background-color': color
+                    });
                 }
             }
         }

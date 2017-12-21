@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "color-hash": "^1.0.3",
     "cytoscape": "^3.2.7",
     "immutable": "^3.8.1",
     "node-sass-chokidar": "^0.0.3",
