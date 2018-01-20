@@ -14,6 +14,13 @@ type Node struct {
 	Chain   core.Blockchain
 }
 
+// BlockPackage wraps a block with other meta information
+// needed by the recipient when sending across a channel
+type BlockPackage struct {
+	Sender string
+	Block core.Block
+}
+
 func (node *Node) Start(wg *sync.WaitGroup) {
 
 	fmt.Println("Started Node on "+node.Address, node.Chain)
@@ -23,7 +30,7 @@ func (node *Node) Start(wg *sync.WaitGroup) {
 	minerChanB := make(chan core.Block)         // to receive mined blocks from miner
 	minerChanLB := make(chan core.Block)        // to send updated last block on chain to miner
 	networkChanT := make(chan core.Transaction) // to receive inbound transactions from network
-	networkChanB := make(chan core.Block)       // to receive inbound blocks from network
+	networkChanB := make(chan BlockPackage)     // to receive inbound blocks from network
 
 	// handle incoming requests from peer nodes, streaming out the data along the channels
 	go Listen(node, networkChanT, networkChanB)
@@ -39,7 +46,7 @@ func (node *Node) Start(wg *sync.WaitGroup) {
 	minerChanLB <- lb
 
 	var bMine core.Block
-	var bPeer core.Block
+	var bPeerPackage BlockPackage
 	for {
 		select {
 		case bMine = <-minerChanB: // we've just mined a block
@@ -72,7 +79,8 @@ func (node *Node) Start(wg *sync.WaitGroup) {
 				// TODO: Notify of rejected/invalid block
 				fmt.Println("Mined block rejected as invalid", bMine)
 			}
-		case bPeer = <-networkChanB: // received a block from a peer
+		case bPeerPackage = <-networkChanB: // received a block from a peer
+			bPeer := bPeerPackage.Block
 			last := node.Chain.LastBlock()
 			if bPeer.Validate(last) {
 				// someone has mined a valid block,
@@ -81,7 +89,8 @@ func (node *Node) Start(wg *sync.WaitGroup) {
 				minerChanLB <- node.Chain.LastBlock()
 			} else if bPeer.Index > lb.Index+1 {
 				// the peer has a longer chain than us...
-				r, err := Request("GET", "/chain", "", node.Address)
+				// TODO: get chain from specific peer, not node.address
+				r, err := Request("GET", "/chain?peer="+bPeerPackage.Sender, "", node.Address)
 				if err != nil {
 					log.Fatal("Request to API resulted in an error")
 					panic(err)
@@ -100,7 +109,7 @@ func (node *Node) Start(wg *sync.WaitGroup) {
 					log.Fatal("API response body could not be written to Response object")
 					panic(err)
 				}
-				fmt.Println(response)
+				fmt.Println("CHAIN", response)
 			}
 			// TODO:
 			// if it extends our existing bc

@@ -61,6 +61,8 @@ Parameters:
 
 ## API
 
+All requests proxied from node A to node B will forward the `X-Sender` header in the request to B.
+
 ### `POST /transaction`
 
 Transaction will be sent to `recipient` and their response returned in `payload`.

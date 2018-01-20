@@ -41,7 +41,7 @@ func ReceiveTransaction(w http.ResponseWriter, r *http.Request, chanT chan core.
 }
 
 // ReceiveBlock streams out blocks received from peer nodes
-func ReceiveBlock(w http.ResponseWriter, r *http.Request, chanB chan core.Block) {
+func ReceiveBlock(w http.ResponseWriter, r *http.Request, chanB chan BlockPackage) {
 	defer r.Body.Close()
 
 	// parse the request body
@@ -64,7 +64,11 @@ func ReceiveBlock(w http.ResponseWriter, r *http.Request, chanB chan core.Block)
 		return
 	}
 
-	chanB <- *block
+	blockPackage := &BlockPackage{
+		Sender: r.Header.Get("X-Sender"),
+		Block: *block,
+	}
+	chanB <- *blockPackage
 
 	t := make(map[string]interface{})
 	t["code"] = 1

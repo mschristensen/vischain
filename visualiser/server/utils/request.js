@@ -7,6 +7,7 @@ const DOMAIN = `http://localhost:`;
 module.exports = class Request {
     constructor(addr) {
         this.addr = addr;
+        this.headers = { 'Content-Type': 'application/json' };
     }
 
     send(method, url, data) {
@@ -23,9 +24,14 @@ module.exports = class Request {
         return axios({
             method,
             url,
-            headers: { 'Content-Type': 'application/json' },
+            headers: this.headers,
             data
         });
+    }
+
+    addHeader(header, value) {
+        this.headers[header] = value;
+        return this;
     }
 
     SendTransaction(transaction) { return this.send('POST', '/transaction', transaction); }

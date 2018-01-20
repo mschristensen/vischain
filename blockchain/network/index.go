@@ -16,7 +16,7 @@ const APIUrl = "http://localhost:3001/api/v1"
 
 // Listen to incoming requests from peer nodes
 // NOTE: `node` is shared across goroutines, treat it as readonly!
-func Listen(node *Node, chanT chan core.Transaction, chanB chan core.Block) {
+func Listen(node *Node, chanT chan core.Transaction, chanB chan BlockPackage) {
 	router := mux.NewRouter()
 
 	// Define routes

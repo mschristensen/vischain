@@ -25,7 +25,7 @@ module.exports = function BlockController(req, res, next) {
             for (let recipient of req.body.recipients) {
                 all.push(
                     Rx.Observable.fromPromise(
-                        new Request(recipient).SendBlock(req.body.data)
+                        new Request(recipient).addHeader('X-Sender', req.get('X-Sender')).SendBlock(req.body.data)
                     )
                 );
             }
