@@ -89,7 +89,6 @@ func (node *Node) Start(wg *sync.WaitGroup) {
 				minerChanLB <- node.Chain.LastBlock()
 			} else if bPeer.Index > lb.Index+1 {
 				// the peer has a longer chain than us...
-				// TODO: get chain from specific peer, not node.address
 				r, err := Request("GET", "/chain?peer="+bPeerPackage.Sender, "", node.Address)
 				if err != nil {
 					log.Fatal("Request to API resulted in an error")
@@ -109,14 +108,12 @@ func (node *Node) Start(wg *sync.WaitGroup) {
 					log.Fatal("API response body could not be written to Response object")
 					panic(err)
 				}
-				fmt.Println("CHAIN", response)
+				fmt.Println("CHAIN", response.Payload["payload"])
+				// TODO parse chain and update local chain, send new last block to miner
+
+			} else {
+				// TODO notify of ignored chain
 			}
-			// TODO:
-			// if it extends our existing bc
-			//		validate block
-			//			append it, and inform miner of new LB
-			// if it is behind, ignore it
-			// if it is ahead,
 		}
 	}
 }
