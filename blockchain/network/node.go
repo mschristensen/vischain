@@ -48,7 +48,7 @@ func (node *Node) Start(wg *sync.WaitGroup) {
 				node.Chain.AddBlock(bMine) // add it to the chain
 
 				// broadcast the block to the network
-				r, err := Post("/block", bMine.ToAPIJSON(node.Address, node.Peers), node.Address)
+				r, err := Request("POST", "/block", bMine.ToAPIJSON(node.Address, node.Peers), node.Address)
 				if err != nil {
 					log.Fatal("Request to API resulted in an error")
 					panic(err)
@@ -80,8 +80,27 @@ func (node *Node) Start(wg *sync.WaitGroup) {
 				node.Chain.AddBlock(bPeer)
 				minerChanLB <- node.Chain.LastBlock()
 			} else if bPeer.Index > lb.Index+1 {
-				// the peer may have a longer chain than us...
-				//
+				// the peer has a longer chain than us...
+				r, err := Request("GET", "/chain", "", node.Address)
+				if err != nil {
+					log.Fatal("Request to API resulted in an error")
+					panic(err)
+				}
+				if r.StatusCode != 200 {
+					log.Fatal(fmt.Sprintf("Request to API did not succeed, got HTTP %d", r.StatusCode))
+				}
+				m, err := ParseBody(r.Body)
+				if err != nil {
+					log.Fatal("API response body could not be parsed")
+					panic(err)
+				}
+				response := Response{}
+				err = response.FromMap(m)
+				if err != nil {
+					log.Fatal("API response body could not be written to Response object")
+					panic(err)
+				}
+				fmt.Println(response)
 			}
 			// TODO:
 			// if it extends our existing bc

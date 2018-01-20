@@ -6,6 +6,7 @@ import (
 	"io"
 	"io/ioutil"
 	"net/http"
+	"log"
 
 	"github.com/gorilla/mux"
 	"github.com/mschristensen/brocoin/blockchain/core"
@@ -33,21 +34,30 @@ func Listen(node *Node, chanT chan core.Transaction, chanB chan core.Block) {
 	http.ListenAndServe(":"+node.Address, router)
 }
 
-// Post the JSON-encoded string `body` to the endpoint `route`
-func Post(route string, body string, sender string) (*http.Response, error) {
-	buf := bytes.NewBuffer([]byte(body))
-	req, _ := http.NewRequest("POST", APIUrl+route, buf)
+// Request makes an HTTP request
+func Request(method string, route string, body string, sender string) (*http.Response, error) {
+	var req *http.Request
+	var err error
+	if method == "POST" && body != "" {
+		req, err = http.NewRequest(method, APIUrl+route, bytes.NewBuffer([]byte(body)))
+	} else {
+		req, err = http.NewRequest(method, APIUrl+route, nil)
+	}
+
+	if err != nil {
+		log.Fatal("Error creating HTTP request: ", err)
+		return nil, err
+	}
 	req.Header.Add("Content-Type", "application/json; charset=utf-8")
 	req.Header.Add("X-Sender", sender)
 	client := &http.Client{}
 	r, err := client.Do(req)
-
-	// if we have a BadGateway error, remove the offline nodes from our list of peers
-	if err == nil && r.StatusCode == 502 {
-		// TODO: ...
+	if err != nil {
+		log.Fatal("Error performing HTTP request: ", err);
+		return nil, err
 	}
 
-	return r, err
+	return r, nil
 }
 
 // ParseBody parses application/json data of unknown shape
