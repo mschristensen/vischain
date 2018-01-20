@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/mschristensen/brocoin/blockchain/core"
+	"github.com/mschristensen/vischain/blockchain/core"
 )
 
 // ReceiveTransaction streams out transactions received from peer nodes

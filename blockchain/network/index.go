@@ -9,7 +9,7 @@ import (
 	"log"
 
 	"github.com/gorilla/mux"
-	"github.com/mschristensen/brocoin/blockchain/core"
+	"github.com/mschristensen/vischain/blockchain/core"
 )
 
 const APIUrl = "http://localhost:3001/api/v1"

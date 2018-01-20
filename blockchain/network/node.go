@@ -5,7 +5,7 @@ import (
 	"log"
 	"sync"
 
-	"github.com/mschristensen/brocoin/blockchain/core"
+	"github.com/mschristensen/vischain/blockchain/core"
 )
 
 type Node struct {

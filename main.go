@@ -7,8 +7,8 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/mschristensen/brocoin/blockchain/core"
-	"github.com/mschristensen/brocoin/blockchain/network"
+	"github.com/mschristensen/vischain/blockchain/core"
+	"github.com/mschristensen/vischain/blockchain/network"
 )
 
 func main() {
