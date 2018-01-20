@@ -38,4 +38,5 @@ module.exports = class Validator {
     async Block(data) { return Joi.validate(data, this.Schemas.Block); }
     async Node(data) { return Joi.validate(data, this.Schemas.Node); }
     async Topology(data) { return Joi.validate(data, this.Schemas.Topology); }
+    async Hash(data) { return Joi.validate(data, Joi.string()); }
 };
