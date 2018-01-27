@@ -2,7 +2,6 @@ package main
 
 import (
 	"bufio"
-	"fmt"
 	"os"
 	"strings"
 	"sync"
@@ -41,7 +40,6 @@ func main() {
 	// start the nodes
 	var wg sync.WaitGroup
 	for i := 0; i < len(nodes); i++ {
-		fmt.Println(nodes[i].Address)
 		wg.Add(1)
 		go nodes[i].Start(&wg)
 	}

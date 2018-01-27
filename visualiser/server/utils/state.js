@@ -79,6 +79,7 @@ class State {
         } else {
             this.state.chains.push(newChain);
         }
+        console.log('UPDATED ', address, response.data.payload)
         return Promise.resolve();
     }
 

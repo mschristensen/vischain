@@ -5,6 +5,8 @@ import (
 	"bytes"
 	"net/http"
 	"github.com/gorilla/mux"
+	"encoding/json"
+	"io/ioutil"
 	
 	"github.com/mschristensen/vischain/blockchain/core"
 	"github.com/mschristensen/vischain/blockchain/util"
@@ -87,7 +89,6 @@ func (node *Node) Start(wg *sync.WaitGroup) {
 				minerChanLB <- node.Chain.LastBlock()
 			} else if bPeer.Index > lb.Index+1 {
 				// the peer has a longer chain than us...
-				node.Logger.Info("ATTEMPT CHAIN FETCH")
 				r, err := node.Request("GET", "/chain?peer="+bPeerPackage.Sender, nil)
 				if err != nil {
 					node.Logger.Fatal("Request to API resulted in an error")
@@ -96,19 +97,31 @@ func (node *Node) Start(wg *sync.WaitGroup) {
 				if r.StatusCode != 200 {
 					node.Logger.Fatalf("Request to API did not succeed, got HTTP %d", r.StatusCode)
 				}
-				// m, err := ParseBody(r.Body)
-				// if err != nil {
-				// 	log.Fatal("API response body could not be parsed")
-				// 	panic(err)
-				// }
-				// response := Response{}
-				// err = response.FromMap(m)
-				// if err != nil {
-				// 	log.Fatal("API response body could not be written to Response object")
-				// 	panic(err)
-				// }
-				// fmt.Println("CHAIN", response.Payload["payload"])
-				// TODO parse chain and update local chain, send new last block to miner
+
+				data, err := ioutil.ReadAll(r.Body)
+				if err != nil {
+					node.Logger.Errorf("Cannot read response body: %v", err)
+					return
+				}
+				
+				var result core.BroadcastableBlockchain
+				err = json.Unmarshal(data, &result)
+				if err != nil {
+					node.Logger.Errorf("Cannot read chain received from peer: %v", err)
+					return
+				}
+
+				node.Chain = result.Chain
+				node.Logger.Info("Peer has longer chain: local chain updated")
+				minerChanLB <- node.Chain.LastBlock()
+
+				// inform visualiser of updated chain
+				r, err = node.Request("POST", "/chain", nil)
+				if err != nil {
+					node.Logger.Fatal("Request to API resulted in an error")
+					panic(err)
+				}
+
 			} else {
 				// TODO notify of ignored chain
 				node.Logger.Infof("RECEIVED BLOCK INVALID %v %v", bPeer, last)

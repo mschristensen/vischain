@@ -9,6 +9,11 @@ import (
 
 type Blockchain []Block
 
+type BroadcastableBlockchain struct {
+	Code	uint16		`json:"code"`
+	Chain	Blockchain	`json:"payload"`
+}
+
 func NewBlockchain() Blockchain {
 	var bc Blockchain
 	genesis := Block{

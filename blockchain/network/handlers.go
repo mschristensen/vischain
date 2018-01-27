@@ -33,7 +33,6 @@ func ReceiveTransaction(w http.ResponseWriter, r *http.Request, chanT chan core.
 		json.NewEncoder(w).Encode(t)
 		return
 	}
-	fmt.Println(transaction)
 
 	chanT <- transaction
 

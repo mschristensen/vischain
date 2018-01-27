@@ -8,5 +8,8 @@ module.exports = function(router) {
   router.route('/')
     .get(async (req, res) => {
         return ChainController(req, res).getChain();
+    })
+    .post(async (req, res) => {
+        return ChainController(req, res).updateChain();
     });
 };

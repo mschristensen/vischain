@@ -30,6 +30,16 @@ module.exports = function ChainController(req, res, next) {
                 logger.error(err);
                 return Response.InternalServerError(err).send(res);
             }
+        },
+        updateChain: async () => {
+            try {
+                await State.SyncNodeChain(utils.getSenderAddressFromRequest(req));    // sender's chain has updated
+                State.Emit();
+                return Response.OK().send(res);
+            } catch (err) {
+                logger.error(err);
+                return Response.InternalServerError(err).send(res);
+            }
         }
     };
 }
