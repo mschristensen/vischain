@@ -71,7 +71,8 @@ func (node *Node) Start(wg *sync.WaitGroup) {
 				// add it to the chain and inform the mining process
 				node.Logger.Infof("Receives valid block and adds to chain: %v", bPeer)
 				node.Chain.AddBlock(bPeer)
-				minerChanLB <- node.Chain.LastBlock()
+				lb = node.Chain.LastBlock()
+				minerChanLB <- lb
 				// forward received block to peers
 				node.broadcastBlockToPeers(bPeer)
 			} else if bPeer.Index > lb.Index+1 {
@@ -99,8 +100,9 @@ func (node *Node) Start(wg *sync.WaitGroup) {
 				}
 
 				node.Chain = result.Chain
-				node.Logger.Info("Peer has longer chain: local chain updated")
-				minerChanLB <- node.Chain.LastBlock()
+				node.Logger.Infof("Peer has longer chain: local chain updated %d %d", bPeer.Index, lb.Index+1)
+				lb = node.Chain.LastBlock()
+				minerChanLB <- lb
 
 				// inform visualiser of updated chain
 				r, err = node.Request("POST", "/chain", nil)
