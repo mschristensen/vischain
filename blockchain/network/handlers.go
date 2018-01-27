@@ -1,9 +1,11 @@
 package network
 
 import (
-	"encoding/base64"
-	"encoding/json"
 	"net/http"
+	"encoding/json"
+	"encoding/base64"
+	"io/ioutil"
+	"fmt"
 
 	"github.com/mschristensen/vischain/blockchain/core"
 )
@@ -12,9 +14,8 @@ import (
 func ReceiveTransaction(w http.ResponseWriter, r *http.Request, chanT chan core.Transaction) {
 	defer r.Body.Close()
 
-	// parse the request body
-	m, err := ParseBody(r.Body)
-	if err != nil { // the request body could not be parsed
+	data, err := ioutil.ReadAll(r.Body)
+	if err != nil {
 		t := make(map[string]interface{})
 		t["code"] = 2
 		w.Header().Set("Content-Type", "application/json")
@@ -22,17 +23,19 @@ func ReceiveTransaction(w http.ResponseWriter, r *http.Request, chanT chan core.
 		return
 	}
 
-	transaction := &core.Transaction{}
-	err = transaction.FromMap(m)
+	var transaction core.Transaction
+	err = json.Unmarshal(data, &transaction)
 	if err != nil { // the transaction could not be parsed
+		fmt.Println("Cannot parse incoming transaction:", err)
 		t := make(map[string]interface{})
 		t["code"] = 3
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(t)
 		return
 	}
+	fmt.Println(transaction)
 
-	chanT <- *transaction
+	chanT <- transaction
 
 	t := make(map[string]interface{})
 	t["code"] = 1
@@ -45,8 +48,8 @@ func ReceiveBlock(w http.ResponseWriter, r *http.Request, chanB chan BlockPackag
 	defer r.Body.Close()
 
 	// parse the request body
-	m, err := ParseBody(r.Body)
-	if err != nil { // the request body could not be parsed
+	data, err := ioutil.ReadAll(r.Body)
+	if err != nil {
 		t := make(map[string]interface{})
 		t["code"] = 2
 		w.Header().Set("Content-Type", "application/json")
@@ -54,9 +57,10 @@ func ReceiveBlock(w http.ResponseWriter, r *http.Request, chanB chan BlockPackag
 		return
 	}
 
-	block := &core.Block{}
-	err = block.FromMap(m)
+	var block core.Block
+	err = json.Unmarshal(data, &block)
 	if err != nil { // the block could not be parsed
+		fmt.Println("Cannot parse incoming block:", err)
 		t := make(map[string]interface{})
 		t["code"] = 3
 		w.Header().Set("Content-Type", "application/json")
@@ -66,7 +70,7 @@ func ReceiveBlock(w http.ResponseWriter, r *http.Request, chanB chan BlockPackag
 
 	blockPackage := &BlockPackage{
 		Sender: r.Header.Get("X-Sender"),
-		Block: *block,
+		Block: block,
 	}
 	chanB <- *blockPackage
 

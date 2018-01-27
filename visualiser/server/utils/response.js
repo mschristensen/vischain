@@ -19,57 +19,11 @@ module.exports = class Response {
     }
 
     send(res) {
-        let response = {
-            payload: this.payload || []
-        };
+        let response = this.payload || null;
         res.statusCode = this.statusCode;
         for (let key in this.headers) {
             res.set(key.toLowerCase(), this.headers[key]);
         }
-        switch (this.statusCode) {
-            case 200:
-                response.title = 'OK';
-                break;
-            case 201:
-                response.title = 'Created';
-                break;
-            case 301:
-                response.title = 'Moved Permanently';
-                break;
-            case 400:
-                response.title = 'Bad Request';
-                break;
-            case 403:
-                response.title = 'Forbidden';
-                break;
-            case 404:
-                response.title = 'Not Found';
-                break;
-            case 405:
-                response.title = 'Method Not Allowed';
-                break;
-            case 415:
-                response.title = 'Unsupported Media Type';
-                break;
-            case 429:
-                response.title = 'Too Many Requests';
-                break;
-            case 500:
-                response.title = 'Internal Server Error';
-                break;
-            case 501:
-                response.title = 'Not Implemented';
-                break;
-            case 502:
-                response.title = 'Bad Gateway';
-                break;
-            case 503:
-                response.title = 'Service Unavailable';
-                break;
-            default:
-                response.title = 'Unknown Status Code';
-        }
-
         return res.send(response);
     }
 

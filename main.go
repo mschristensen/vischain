@@ -6,9 +6,11 @@ import (
 	"os"
 	"strings"
 	"sync"
+	"context"
 
 	"github.com/mschristensen/vischain/blockchain/core"
 	"github.com/mschristensen/vischain/blockchain/network"
+	"github.com/mschristensen/vischain/blockchain/util"
 )
 
 func main() {
@@ -21,14 +23,19 @@ func main() {
 	// create the nodes, with identical initial blockchains
 	var nodes []network.Node
 	chain := core.NewBlockchain()
+	i := 0
+	ctxBackground := context.Background()
 	for scanner.Scan() {
 		parts := strings.Fields(scanner.Text())
+		ctx := util.CreateLogger(ctxBackground, parts[0])
 		chainCopy := core.Blockchain{}
 		nodes = append(nodes, network.Node{
 			Address: parts[0],
 			Peers:   parts[1:],
 			Chain:   append(chainCopy, chain...),
+			Logger:	 util.GetLogger(ctx),
 		})
+		i++
 	}
 
 	// start the nodes

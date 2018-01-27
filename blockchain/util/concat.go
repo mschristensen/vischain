@@ -1,4 +1,4 @@
-package core
+package util
 
 func ConcatBytes(a []byte, b []byte) []byte {
 	var result []byte

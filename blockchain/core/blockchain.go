@@ -2,8 +2,9 @@ package core
 
 import (
 	"encoding/binary"
-	"fmt"
 	"time"
+
+	"github.com/mschristensen/vischain/blockchain/util"
 )
 
 type Blockchain []Block
@@ -34,7 +35,7 @@ func (bc *Blockchain) AddBlock(block Block) {
 // Work is completed successfully if the hash of the block and a
 // given counter ends with a sufficient number of trailing zeroes.
 func ProofOfWork(blockHash []byte, counter []byte) bool {
-	bs := ConcatBytes(blockHash, counter)
+	bs := util.ConcatBytes(blockHash, counter)
 	difficulty := 2
 	hash := Sha256(bs)
 	tail := hash[len(hash)-difficulty:]
@@ -43,7 +44,6 @@ func ProofOfWork(blockHash []byte, counter []byte) bool {
 			return false
 		}
 	}
-
 	return true
 }
 
@@ -62,24 +62,22 @@ func (bc *Blockchain) Validate() bool {
 
 // Mine continuously accepts new transactions and attempts to mine a block containing
 // them by finding a proof value which satisfies the difficulty constraint
-func Mine(chanLB chan Block, chanT chan Transaction, chanB chan Block) {
+func Mine(chanLB chan Block, chanT chan Transaction, chanB chan Block, log util.Logger) {
 	var t Transaction // incoming transaction
 	var lb Block      // current last block on the chain
 	var block Block   // block to mine
 
 	var counterInt32 uint32
 	counter := []byte{0, 0, 0, 0}
-	// lastBlock := bc.LastBlock()
-	// success := ProofOfWork(lb.Hash(), counter)
 	success := false
 	for {
 		select {
 		case t = <-chanT:
 			block.Transactions.AddTransaction(t)
-			fmt.Println("RECEIVED TRANSACTION", t)
+			log.Infof("MINER RECEIVED TRANSACTION: %v", t)
 		case lb = <-chanLB:
 			block = lb.NewBlock()
-			fmt.Println("RECEIVED BLOCK", lb)
+			log.Infof("MINER RECEIVED BLOCK: %v", lb)
 		default:
 			if block.Transactions == nil || &lb == nil {
 				continue
@@ -92,10 +90,8 @@ func Mine(chanLB chan Block, chanT chan Transaction, chanB chan Block) {
 			success = ProofOfWork(lb.Hash(), counter)
 			if success == true {
 				block.Proof = append([]byte(nil), counter...)
-				// bc.AddBlock(block)
 				chanB <- block
-				fmt.Println("MINED", block)
-				// TODO broadcast block to peers
+				log.Infof("MINED NEW BLOCK: %v", block)
 				lb = block
 				block = lb.NewBlock()
 			}
