@@ -34,7 +34,6 @@ module.exports = function ChainController(req, res, next) {
         updateChain: async () => {
             try {
                 await State.SyncNodeChain(utils.getSenderAddressFromRequest(req));    // sender's chain has updated
-                State.Emit();
                 return Response.OK().send(res);
             } catch (err) {
                 logger.error(err);
