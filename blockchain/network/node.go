@@ -58,22 +58,7 @@ func (node *Node) Start(wg *sync.WaitGroup) {
 			last := node.Chain.LastBlock()
 			if bMine.Validate(last) { // validate it
 				node.Chain.AddBlock(bMine) // add it to the chain
-
-				// broadcast the block to the network
-				broadcastJSON, err := bMine.ToBroadcastableJSON(node.Address, node.Peers)
-				if err != nil {
-					panic(err)
-				}
-				r, err := node.Request("POST", "/block", broadcastJSON)
-				if err != nil {
-					node.Logger.Fatal("Request to API resulted in an error")
-					panic(err)
-				}
-				if r.StatusCode != 200 {
-					node.Logger.Fatalf("Request to API did not succeed, got HTTP %d", r.StatusCode)
-				}
-				node.Logger.Infof("Broadcasting block to peers: %v", bMine)
-				// TODO: act on unsuccessful broadcast to nodes
+				node.broadcastBlockToPeers(bMine)
 			} else {
 				// TODO: Notify of rejected/invalid block
 				node.Logger.Infof("Mined block rejected as invalid: %v", bMine)
@@ -87,6 +72,8 @@ func (node *Node) Start(wg *sync.WaitGroup) {
 				node.Logger.Infof("Receives valid block and adds to chain: %v", bPeer)
 				node.Chain.AddBlock(bPeer)
 				minerChanLB <- node.Chain.LastBlock()
+				// forward received block to peers
+				node.broadcastBlockToPeers(bPeer)
 			} else if bPeer.Index > lb.Index+1 {
 				// the peer has a longer chain than us...
 				r, err := node.Request("GET", "/chain?peer="+bPeerPackage.Sender, nil)
@@ -122,12 +109,34 @@ func (node *Node) Start(wg *sync.WaitGroup) {
 					panic(err)
 				}
 
+				// forward received block to peers
+				node.broadcastBlockToPeers(bPeer)
+
 			} else {
 				// TODO notify of ignored chain
 				node.Logger.Infof("RECEIVED BLOCK INVALID %v %v", bPeer, last)
 			}
 		}
 	}
+}
+
+func (node *Node) broadcastBlockToPeers(block core.Block) {
+	// broadcast the block to the network
+	broadcastJSON, err := block.ToBroadcastableJSON(node.Address, node.Peers)
+	if err != nil {
+		panic(err)
+	}
+	r, err := node.Request("POST", "/block", broadcastJSON)
+	if err != nil {
+		node.Logger.Fatal("Request to API resulted in an error")
+		panic(err)
+	}
+	if r.StatusCode != 200 {
+		node.Logger.Fatalf("Request to API did not succeed, got HTTP %d", r.StatusCode)
+	}
+	node.Logger.Infof("Broadcasting block to peers: %v", block)
+
+	// TODO: act on unsuccessful broadcast to nodes
 }
 
 // Request makes an HTTP request
