@@ -12,7 +12,7 @@ class App extends Component {
         super(props);
         this.state = {};
         this.stateQueue = [];
-        this.stateFrameRate = 1;
+        this.stateFrameRate = 3;
     }
 
     componentDidMount() {

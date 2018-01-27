@@ -4,7 +4,7 @@ A visualisation of a toy blockchain network.
 
 ## Todo `blockchain`
 
-- Fix block forwarding loop
+- Fix node crash, sometimes hangs
 - If an incoming block is verified and added to the chain, remove any transactions in pool which have already been mined and start again
 - If a longer chain is selected, ensure we pool any unmined transactions which were in our "lost" blocks to mine later
 - Handle BadGateway errors (offline peers): manage peer connections centrally on API

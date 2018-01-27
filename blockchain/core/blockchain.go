@@ -41,7 +41,7 @@ func (bc *Blockchain) AddBlock(block Block) {
 // given counter ends with a sufficient number of trailing zeroes.
 func ProofOfWork(blockHash []byte, counter []byte) bool {
 	bs := util.ConcatBytes(blockHash, counter)
-	difficulty := 2
+	difficulty := 1
 	hash := Sha256(bs)
 	tail := hash[len(hash)-difficulty:]
 	for i := 0; i < difficulty; i++ {
